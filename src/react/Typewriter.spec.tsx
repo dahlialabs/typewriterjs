@@ -1,7 +1,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import Typewriter from "../Typewriter.tsx";
-import TypewriterCore from "../../core";
+import Typewriter from "./Typewriter";
+import TypewriterCore from "../core/index";
 
 jest.mock("./../../core", () => {
   return jest.fn().mockImplementation(() => ({

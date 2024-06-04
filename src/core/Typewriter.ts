@@ -7,8 +7,8 @@ import {
 import { EVENT_NAMES, VISIBLE_NODE_TYPES, STYLES } from "./constants";
 
 type OnRemoveArgs = {
-  node: Node;
-  character: string;
+  node?: Node | null;
+  character?: string;
 };
 
 type Speed = "natural" | number;
@@ -100,7 +100,7 @@ type TypewriterOptions = {
    *
    * @default null
    */
-  onRemoveNode?: (param: { node: Node | null; character?: string }) => void;
+  onRemoveNode?: (param: OnRemoveArgs) => void;
 };
 
 type EventQueueItem = {
@@ -111,7 +111,7 @@ type EventQueueItem = {
 type VisibleNode = {
   type: string;
   character?: string;
-  node: Node | null;
+  node?: Node | null;
   parentNode?: HTMLElement;
 };
 
@@ -178,7 +178,7 @@ class Typewriter {
    * @param container HTMLElement of the container or string selector
    * @param options
    */
-  constructor(container: HTMLElement | string, options: TypewriterOptions) {
+  constructor(container: HTMLElement | string, options?: TypewriterOptions) {
     if (container) {
       if (typeof container === "string") {
         const containerElement = document.querySelector(container);
@@ -193,15 +193,15 @@ class Typewriter {
       }
     }
 
-    if (options) {
-      this.options = {
-        ...this.options,
-        ...options,
-      };
-    }
+    const mergedOptions = {
+      ...DEFAULT_OPTIONS,
+      ...options,
+    };
+
+    this.options = mergedOptions;
 
     // Make a copy of the options used to reset options when looping
-    this.state.initialOptions = { ...this.options };
+    this.state.initialOptions = { ...mergedOptions };
 
     this.init();
   }
@@ -284,12 +284,12 @@ class Typewriter {
   /**
    * Add pause event to queue for ms provided
    *
-   * @param {Number} ms Time in ms to pause for
+   * @param ms Time in ms to pause for
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  pauseFor = (ms) => {
+  pauseFor = (ms: number) => {
     this.addEventToQueue(EVENT_NAMES.PAUSE_FOR, { ms });
 
     return this;
@@ -305,13 +305,15 @@ class Typewriter {
    */
   typeOutAllStrings = () => {
     if (typeof this.options.strings === "string") {
-      this.typeString(this.options.strings).pauseFor(this.options.pauseFor);
+      this.typeString(this.options.strings).pauseFor(
+        this.options.pauseFor || 0
+      );
       return this;
     }
 
     (this.options.strings || []).forEach((string) => {
       this.typeString(string)
-        .pauseFor(this.options.pauseFor)
+        .pauseFor(this.options.pauseFor || 0)
         .deleteAll(this.options.deleteSpeed);
     });
 
@@ -321,13 +323,13 @@ class Typewriter {
   /**
    * Adds string characters to event queue for typing
    *
-   * @param {String} string String to type
-   * @param {HTMLElement} node Node to add character inside of
+   * @param string String to type
+   * @param node Node to add character inside of
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeString = (string, node: HTMLElement | null = null) => {
+  typeString = (string: string, node: HTMLElement | null = null) => {
     if (doesStringContainHTMLTag(string)) {
       return this.typeOutHTMLString(string, node);
     }
@@ -347,13 +349,13 @@ class Typewriter {
   /**
    * Adds entire strings to event queue for paste effect
    *
-   * @param {String} string String to paste
-   * @param {HTMLElement} node Node to add string inside of
+   * @param string String to paste
+   * @param node Node to add string inside of
    * @return {Typewriter}
    *
    * @author Luiz Felicio <unifelicio@gmail.com>
    */
-  pasteString = (string, node: HTMLElement | null = null) => {
+  pasteString = (string: string, node: HTMLElement | null = null) => {
     if (doesStringContainHTMLTag(string)) {
       return this.typeOutHTMLString(string, node, true);
     }
@@ -436,12 +438,12 @@ class Typewriter {
   /**
    * Change delete speed
    *
-   * @param {Number} speed Speed to use for deleting characters
+   * @param speed Speed to use for deleting characters
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  changeDeleteSpeed = (speed) => {
+  changeDeleteSpeed = (speed: Speed) => {
     if (!speed) {
       throw new Error("Must provide new delete speed");
     }
@@ -454,12 +456,12 @@ class Typewriter {
   /**
    * Change delay when typing
    *
-   * @param {Number} delay Delay when typing out characters
+   * @param delay Delay when typing out characters
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  changeDelay = (delay) => {
+  changeDelay = (delay: Speed) => {
     if (!delay) {
       throw new Error("Must provide new delay");
     }
@@ -472,12 +474,12 @@ class Typewriter {
   /**
    * Change cursor
    *
-   * @param {String} character/string to represent as cursor
+   * @param character/string to represent as cursor
    * @return {Typewriter}
    *
    * @author Y.Paing <ye@y3p.io>
    */
-  changeCursor = (cursor) => {
+  changeCursor = (cursor: string) => {
     if (!cursor) {
       throw new Error("Must provide new cursor");
     }
@@ -490,12 +492,12 @@ class Typewriter {
   /**
    * Add delete character to event queue for amount of characters provided
    *
-   * @param {Number} amount Number of characters to remove
+   * @param amount Number of characters to remove
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  deleteChars = (amount) => {
+  deleteChars = (amount: number) => {
     if (!amount) {
       throw new Error("Must provide amount of characters to delete");
     }
@@ -510,13 +512,13 @@ class Typewriter {
   /**
    * Add an event item to call a callback function
    *
-   * @param {cb}      cb        Callback function to call
-   * @param {Object}  thisArg   thisArg to use when calling function
+   * @param cb Callback function to call
+   * @param thisArg thisArg to use when calling function
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  callFunction = (cb, thisArg) => {
+  callFunction = (cb: () => void, thisArg?: any) => {
     if (!cb || typeof cb !== "function") {
       throw new Error("Callback must be a function");
     }
@@ -550,12 +552,12 @@ class Typewriter {
   /**
    * Add remove character event for each character
    *
-   * @param {Array} characters Array of characters
+   * @param characters Array of characters
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  removeCharacters = (characters) => {
+  removeCharacters = (characters: string[]) => {
     if (!characters || !Array.isArray(characters)) {
       throw new Error("Characters must be an array");
     }
@@ -711,12 +713,12 @@ class Typewriter {
       currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
     ) {
       delay =
-        this.options.deleteSpeed === "natural"
+        typeof this.options.deleteSpeed !== "number"
           ? getRandomInteger(40, 80)
           : this.options.deleteSpeed;
     } else {
       delay =
-        this.options.delay === "natural"
+        typeof this.options.delay !== "number"
           ? getRandomInteger(120, 160)
           : this.options.delay;
     }
@@ -919,12 +921,17 @@ class Typewriter {
    * @param {Mixed} message Message or item to console.log
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  logInDevMode(message) {
+  logInDevMode(message: any) {
     if (this.options.devMode) {
       console.log(message);
     }
   }
 }
 
+const resetStylesAdded = () => {
+  ___TYPEWRITER_JS_STYLES_ADDED___ = false;
+};
+
 export default Typewriter;
+export { resetStylesAdded };
 export type { TypewriterOptions };

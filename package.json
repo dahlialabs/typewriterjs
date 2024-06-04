@@ -13,7 +13,8 @@
   "repository": "git@github.com:okcoker/typewriterjs.git",
   "license": "MIT",
   "scripts": {
-    "test": "jest --env=jsdom"
+    "test": "jest --env=jsdom",
+    "test:watch": "jest --env=jsdom --watch"
   },
   "peerDependencies": {
     "react": "^17.x || ^18.x",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
+    "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "react": "^18.3.1",
