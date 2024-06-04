@@ -2,29 +2,39 @@ import React, { useEffect } from "react";
 import TypewriterCore, { type TypewriterOptions } from "../core";
 
 type Props = {
-  component: React.ReactNode;
-  // onInit: PropTypes.func;
+  component: React.JSXElementConstructor<any> | string;
+  onInit: (core: TypewriterCore) => void;
   options: TypewriterOptions;
 };
 
 export default function Typewriter({
   component: Component = "div",
-  // onInit,
+  onInit,
   options,
 }: Props) {
   const containerRef = React.useRef<HTMLElement>(null);
-  const typewriterRef = React.useRef<typeof TypewriterCore>(null);
+  const typewriterRef: React.MutableRefObject<TypewriterCore | null> =
+    React.useRef(null);
 
   useEffect(() => {
-    typewriterRef.current = new TypewriterCore(containerRef.current, options);
+    if (!containerRef.current) {
+      return;
+    }
+
+    const inst = new TypewriterCore(containerRef.current, options);
+    typewriterRef.current = inst;
+
+    if (onInit) {
+      onInit(inst);
+    }
 
     return () => {
-      typewriterRef.current.stop();
+      inst.stop();
     };
   }, []);
 
   useEffect(() => {
-    typewriterRef.current.update(options);
+    typewriterRef.current?.update(options);
   }, [options]);
 
   return (

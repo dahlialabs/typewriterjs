@@ -926,6 +926,13 @@ class Typewriter {
       console.log(message);
     }
   }
+
+  update(options: Partial<TypewriterOptions>) {
+    this.options = {
+      ...this.options,
+      ...options,
+    };
+  }
 }
 
 const resetStylesAdded = () => {
