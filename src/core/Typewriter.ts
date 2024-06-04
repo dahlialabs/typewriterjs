@@ -1,18 +1,159 @@
-import raf, { cancel as cancelRaf } from 'raf';
 import {
   doesStringContainHTMLTag,
   getDOMElementFromString,
   getRandomInteger,
   addStyles,
-} from './../utils';
-import {
-  EVENT_NAMES,
-  VISIBLE_NODE_TYPES,
-  STYLES,
-} from './constants';
+} from "../utils";
+import { EVENT_NAMES, VISIBLE_NODE_TYPES, STYLES } from "./constants";
+
+type OnRemoveArgs = {
+  node: Node;
+  character: string;
+};
+
+type Speed = "natural" | number;
+
+type TypewriterOptions = {
+  /**
+   * Strings to type out when using autoStart option
+   *
+   * @default null
+   */
+  strings?: string | string[];
+  /**
+   * String value to use as the cursor.
+   *
+   * @default Pipe character
+   */
+  cursor?: string;
+  /**
+   * The delay between each key when typing.
+   *
+   * @default "natural"
+   */
+  delay?: Speed;
+  /**
+   * The delay between deleting each character.
+   */
+  pauseFor?: number;
+  /**
+   * The delay between deleting each character.
+   *
+   * @default "natural"
+   */
+  deleteSpeed?: Speed;
+  /**
+   * Whether to keep looping or not.
+   *
+   * @default false
+   */
+  loop?: boolean;
+  /**
+   * Whether to autostart typing strings or not. You are required to provide
+   * strings option.
+   *
+   * @default false
+   */
+  autoStart?: boolean;
+  /**
+   * Whether or not to display console logs.
+   *
+   * @default false
+   */
+  devMode?: boolean;
+  /**
+   * Skip adding default typewriter css styles.
+   *
+   * @default false
+   */
+  skipAddStyles?: boolean;
+  /**
+   * Class name for the wrapper element.
+   *
+   * @default "Typewriter__wrapper"
+   */
+  wrapperClassName?: string;
+  /**
+   * Class name for the cursor element.
+   *
+   * @default "Typewriter__cursor"
+   */
+  cursorClassName?: string;
+  /**
+   * String splitter function, can be used to split emoji's
+   *
+   * @default null
+   */
+  stringSplitter?: (text: string) => string[];
+  /**
+   * Callback function to replace the internal method which
+   * creates a text node for the character before adding
+   * it to the DOM. If you return null, then it will
+   * not add anything to the DOM and so it
+   * is up to you to handle it
+   *
+   * @default null
+   */
+  onCreateTextNode?: (character: string, textNode: Text) => Text | null;
+  /**
+   * Callback function when a node is about to be removed
+   *
+   * @default null
+   */
+  onRemoveNode?: (param: { node: Node | null; character?: string }) => void;
+};
+
+type EventQueueItem = {
+  eventName: string;
+  eventArgs?: any;
+};
+
+type VisibleNode = {
+  type: string;
+  character?: string;
+  node: Node | null;
+  parentNode?: HTMLElement;
+};
+
+type TypewriterState = {
+  cursorAnimation: null;
+  lastFrameTime: number | null;
+  pauseUntil: number | null;
+  eventQueue: EventQueueItem[];
+  eventLoop: number | null;
+  eventLoopPaused: boolean;
+  reverseCalledEvents: EventQueueItem[];
+  calledEvents: EventQueueItem[];
+  visibleNodes: VisibleNode[];
+  initialOptions: TypewriterOptions;
+  elements: {
+    container: HTMLElement;
+    wrapper: HTMLElement;
+    cursor: HTMLElement;
+  };
+};
+
+const DEFAULT_OPTIONS: TypewriterOptions = {
+  strings: [],
+  cursor: "|",
+  delay: "natural",
+  pauseFor: 1500,
+  deleteSpeed: "natural",
+  loop: false,
+  autoStart: false,
+  devMode: false,
+  skipAddStyles: false,
+  wrapperClassName: "Typewriter__wrapper",
+  cursorClassName: "Typewriter__cursor",
+  stringSplitter: undefined,
+  onCreateTextNode: undefined,
+  onRemoveNode: undefined,
+};
+
+let ___TYPEWRITER_JS_STYLES_ADDED___ = false;
 
 class Typewriter {
-  state = {
+  state: TypewriterState = {
     cursorAnimation: null,
     lastFrameTime: null,
     pauseUntil: null,
@@ -22,50 +163,40 @@ class Typewriter {
     reverseCalledEvents: [],
     calledEvents: [],
     visibleNodes: [],
-    initialOptions: null,
+    initialOptions: DEFAULT_OPTIONS,
     elements: {
-      container: null,
-      wrapper: document.createElement('span'),
-      cursor: document.createElement('span'),
+      container: document.createElement("span"),
+      wrapper: document.createElement("span"),
+      cursor: document.createElement("span"),
     },
-  }
+  };
 
-  options = {
-    strings: null,
-    cursor: '|',
-    delay: 'natural',
-    pauseFor: 1500,
-    deleteSpeed: 'natural',
-    loop: false,
-    autoStart: false,
-    devMode: false,
-    skipAddStyles: false,
-    wrapperClassName: 'Typewriter__wrapper',
-    cursorClassName: 'Typewriter__cursor',
-    stringSplitter: null,
-    onCreateTextNode: null,
-    onRemoveNode: null,
-  }
+  options: TypewriterOptions;
 
-  constructor(container, options) {
-    if(container) {
-      if(typeof container === 'string') {
+  /**
+   *
+   * @param container HTMLElement of the container or string selector
+   * @param options
+   */
+  constructor(container: HTMLElement | string, options: TypewriterOptions) {
+    if (container) {
+      if (typeof container === "string") {
         const containerElement = document.querySelector(container);
-  
-        if(!containerElement) {
-          throw new Error('Could not find container element');
+
+        if (!containerElement || !(containerElement instanceof HTMLElement)) {
+          throw new Error("Could not find container element");
         }
-  
+
         this.state.elements.container = containerElement;
       } else {
         this.state.elements.container = container;
       }
     }
 
-    if(options) {
+    if (options) {
       this.options = {
         ...this.options,
-        ...options
+        ...options,
       };
     }
 
@@ -77,17 +208,21 @@ class Typewriter {
 
   init() {
     this.setupWrapperElement();
-    this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
+    this.addEventToQueue(
+      EVENT_NAMES.CHANGE_CURSOR,
+      { cursor: this.options.cursor },
+      true
+    );
     this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
 
-    if(window && !window.___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
+    if (!___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
       addStyles(STYLES);
-      window.___TYPEWRITER_JS_STYLES_ADDED___ = true;
+      ___TYPEWRITER_JS_STYLES_ADDED___ = true;
     }
 
-    if(this.options.autoStart === true && this.options.strings) {
+    if (this.options.autoStart === true && this.options.strings) {
       this.typeOutAllStrings().start();
-		}
+    }
   }
 
   /**
@@ -97,19 +232,19 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   setupWrapperElement = () => {
-    if(!this.state.elements.container) {
-      return
+    if (!this.state.elements.container) {
+      return;
     }
 
-    this.state.elements.wrapper.className = this.options.wrapperClassName;
-    this.state.elements.cursor.className = this.options.cursorClassName;
+    this.state.elements.wrapper.className = this.options.wrapperClassName || "";
+    this.state.elements.cursor.className = this.options.cursorClassName || "";
 
-    this.state.elements.cursor.innerHTML = this.options.cursor;
-    this.state.elements.container.innerHTML = '';
+    this.state.elements.cursor.innerHTML = this.options.cursor || "";
+    this.state.elements.container.innerHTML = "";
 
     this.state.elements.container.appendChild(this.state.elements.wrapper);
     this.state.elements.container.appendChild(this.state.elements.cursor);
-  }
+  };
 
   /**
    * Start typewriter effect
@@ -119,7 +254,7 @@ class Typewriter {
     this.runEventLoop();
 
     return this;
-  }
+  };
 
   /**
    * Pause the event loop
@@ -130,7 +265,7 @@ class Typewriter {
     this.state.eventLoopPaused = true;
 
     return this;
-  }
+  };
 
   /**
    * Destroy current running instance
@@ -138,13 +273,13 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   stop = () => {
-    if(this.state.eventLoop) {
-      cancelRaf(this.state.eventLoop);
+    if (this.state.eventLoop) {
+      window.cancelAnimationFrame(this.state.eventLoop);
       this.state.eventLoop = null;
     }
 
     return this;
-  }
+  };
 
   /**
    * Add pause event to queue for ms provided
@@ -158,7 +293,7 @@ class Typewriter {
     this.addEventToQueue(EVENT_NAMES.PAUSE_FOR, { ms });
 
     return this;
-  }
+  };
 
   /**
    * Start typewriter effect by typing
@@ -169,20 +304,19 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutAllStrings = () => {
-    if(typeof this.options.strings === 'string') {
-      this.typeString(this.options.strings)
-        .pauseFor(this.options.pauseFor);
+    if (typeof this.options.strings === "string") {
+      this.typeString(this.options.strings).pauseFor(this.options.pauseFor);
       return this;
     }
 
-    this.options.strings.forEach(string => {
+    (this.options.strings || []).forEach((string) => {
       this.typeString(string)
         .pauseFor(this.options.pauseFor)
         .deleteAll(this.options.deleteSpeed);
     });
 
     return this;
-  }
+  };
 
   /**
    * Adds string characters to event queue for typing
@@ -193,19 +327,22 @@ class Typewriter {
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeString = (string, node = null) => {
-    if(doesStringContainHTMLTag(string)) {
+  typeString = (string, node: HTMLElement | null = null) => {
+    if (doesStringContainHTMLTag(string)) {
       return this.typeOutHTMLString(string, node);
     }
 
-    if(string) {
+    if (string) {
       const { stringSplitter } = this.options || {};
-      const characters = typeof stringSplitter === 'function' ? stringSplitter(string) : string.split('');
+      const characters =
+        typeof stringSplitter === "function"
+          ? stringSplitter(string)
+          : string.split("");
       this.typeCharacters(characters, node);
     }
 
     return this;
-  }
+  };
 
   /**
    * Adds entire strings to event queue for paste effect
@@ -216,38 +353,51 @@ class Typewriter {
    *
    * @author Luiz Felicio <unifelicio@gmail.com>
    */
-  pasteString = (string, node = null) => {
-    if(doesStringContainHTMLTag(string)) {
+  pasteString = (string, node: HTMLElement | null = null) => {
+    if (doesStringContainHTMLTag(string)) {
       return this.typeOutHTMLString(string, node, true);
     }
 
-    if(string) {
-      this.addEventToQueue(EVENT_NAMES.PASTE_STRING, { character: string, node });
+    if (string) {
+      this.addEventToQueue(EVENT_NAMES.PASTE_STRING, {
+        character: string,
+        node,
+      });
     }
 
     return this;
-  }
+  };
 
   /**
    * Type out a string which is wrapper around HTML tag
    *
-   * @param {String} string String to type
-   * @param {HTMLElement} parentNode Node to add inner nodes to
+   * @param string String to type
+   * @param parentNode Node to add inner nodes to
+   * @param pasteEffect
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeOutHTMLString = (string, parentNode = null, pasteEffect) => {
+  typeOutHTMLString = (
+    string: string,
+    parentNode: HTMLElement | null = null,
+    pasteEffect?: boolean
+  ) => {
     const childNodes = getDOMElementFromString(string);
 
-    if(childNodes.length > 0 ) {
-      for(let i = 0; i < childNodes.length; i++) {
+    if (childNodes.length > 0) {
+      for (let i = 0; i < childNodes.length; i++) {
         const node = childNodes[i];
+
+        if (!(node instanceof HTMLElement)) {
+          continue;
+        }
+
         const nodeHTML = node.innerHTML;
 
-        if(node && node.nodeType !== 3) {
+        if (node && node.nodeType !== 3) {
           // Reset innerText of HTML element
-          node.innerHTML = '';
+          node.innerHTML = "";
 
           // Add event queue item to insert HTML tag before typing characters
           this.addEventToQueue(EVENT_NAMES.ADD_HTML_TAG_ELEMENT, {
@@ -255,17 +405,21 @@ class Typewriter {
             parentNode,
           });
 
-            pasteEffect ? this.pasteString(nodeHTML, node) :  this.typeString(nodeHTML, node);
+          pasteEffect
+            ? this.pasteString(nodeHTML, node)
+            : this.typeString(nodeHTML, node);
         } else {
-          if(node.textContent) {
-            pasteEffect ? this.pasteString(node.textContent, parentNode) :  this.typeString(node.textContent, parentNode);
+          if (node.textContent) {
+            pasteEffect
+              ? this.pasteString(node.textContent, parentNode)
+              : this.typeString(node.textContent, parentNode);
           }
         }
       }
     }
 
     return this;
-  }
+  };
 
   /**
    * Add delete all characters to event queue
@@ -274,10 +428,10 @@ class Typewriter {
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  deleteAll = (speed = 'natural') => {
+  deleteAll = (speed: TypewriterOptions["deleteSpeed"] = "natural") => {
     this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, { speed });
     return this;
-  }
+  };
 
   /**
    * Change delete speed
@@ -288,14 +442,14 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDeleteSpeed = (speed) => {
-    if(!speed) {
-      throw new Error('Must provide new delete speed');
+    if (!speed) {
+      throw new Error("Must provide new delete speed");
     }
 
     this.addEventToQueue(EVENT_NAMES.CHANGE_DELETE_SPEED, { speed });
 
     return this;
-  }
+  };
 
   /**
    * Change delay when typing
@@ -306,14 +460,14 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDelay = (delay) => {
-    if(!delay) {
-      throw new Error('Must provide new delay');
+    if (!delay) {
+      throw new Error("Must provide new delay");
     }
 
     this.addEventToQueue(EVENT_NAMES.CHANGE_DELAY, { delay });
 
     return this;
-  }
+  };
 
   /**
    * Change cursor
@@ -324,14 +478,14 @@ class Typewriter {
    * @author Y.Paing <ye@y3p.io>
    */
   changeCursor = (cursor) => {
-    if(!cursor) {
-      throw new Error('Must provide new cursor');
+    if (!cursor) {
+      throw new Error("Must provide new cursor");
     }
 
     this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor });
 
     return this;
-  }
+  };
 
   /**
    * Add delete character to event queue for amount of characters provided
@@ -342,16 +496,16 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   deleteChars = (amount) => {
-    if(!amount) {
-      throw new Error('Must provide amount of characters to delete');
+    if (!amount) {
+      throw new Error("Must provide amount of characters to delete");
     }
 
-    for(let i = 0; i < amount; i++) {
+    for (let i = 0; i < amount; i++) {
       this.addEventToQueue(EVENT_NAMES.REMOVE_CHARACTER);
     }
 
     return this;
-  }
+  };
 
   /**
    * Add an event item to call a callback function
@@ -363,35 +517,35 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   callFunction = (cb, thisArg) => {
-    if(!cb || typeof cb !== 'function') {
-      throw new Error('Callback must be a function');
+    if (!cb || typeof cb !== "function") {
+      throw new Error("Callback must be a function");
     }
 
     this.addEventToQueue(EVENT_NAMES.CALL_FUNCTION, { cb, thisArg });
 
     return this;
-  }
+  };
 
   /**
    * Add type character event for each character
    *
-   * @param {Array} characters Array of characters
-   * @param {HTMLElement} node Node to add character inside of
+   * @param characters Array of characters
+   * @param node Node to add character inside of
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeCharacters = (characters, node = null) => {
-    if(!characters || !Array.isArray(characters)) {
-      throw new Error('Characters must be an array');
+  typeCharacters = (characters: string[], node: HTMLElement | null = null) => {
+    if (!characters || !Array.isArray(characters)) {
+      throw new Error("Characters must be an array");
     }
 
-    characters.forEach(character => {
+    characters.forEach((character) => {
       this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
     });
 
     return this;
-  }
+  };
 
   /**
    * Add remove character event for each character
@@ -402,8 +556,8 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   removeCharacters = (characters) => {
-    if(!characters || !Array.isArray(characters)) {
-      throw new Error('Characters must be an array');
+    if (!characters || !Array.isArray(characters)) {
+      throw new Error("Characters must be an array");
     }
 
     characters.forEach(() => {
@@ -411,83 +565,88 @@ class Typewriter {
     });
 
     return this;
-  }
+  };
 
   /**
    * Add an event to the event queue
    *
-   * @param {String}  eventName Name of the event
-   * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param eventName Name of the event
+   * @param eventArgs Arguments to pass to event callback
+   * @param prepend   Prepend to begining of event queue
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  addEventToQueue = (eventName, eventArgs, prepend = false) => {
+  addEventToQueue = (eventName: string, eventArgs?: any, prepend = false) => {
     return this.addEventToStateProperty(
       eventName,
+      "eventQueue",
       eventArgs,
-      prepend,
-      'eventQueue'
+      prepend
     );
-  }
+  };
 
   /**
    * Add an event to reverse called events used for looping
    *
-   * @param {String}  eventName Name of the event
-   * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
+   * @param eventName Name of the event
+   * @param eventArgs Arguments to pass to event callback
+   * @param prepend   Prepend to begining of event queue
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  addReverseCalledEvent = (eventName, eventArgs, prepend = false) => {
+  addReverseCalledEvent = (
+    eventName: string,
+    eventArgs?: any,
+    prepend = false
+  ) => {
     const { loop } = this.options;
 
-    if(!loop) {
+    if (!loop) {
       return this;
     }
 
     return this.addEventToStateProperty(
       eventName,
+      "reverseCalledEvents",
       eventArgs,
-      prepend,
-      'reverseCalledEvents'
+      prepend
     );
-  }
+  };
 
   /**
    * Add an event to correct state property
    *
-   * @param {String}  eventName Name of the event
-   * @param {Object}  eventArgs Arguments to pass to event callback
-   * @param {Boolean} prepend   Prepend to begining of event queue
-   * @param {String}  property  Property name of state object
+   * @param eventName Name of the event
+   * @param property  Property name of state object
+   * @param eventArgs Arguments to pass to event callback
+   * @param prepend   Prepend to begining of event queue
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  addEventToStateProperty = (eventName, eventArgs, prepend = false, property) => {
+  addEventToStateProperty = (
+    eventName: string,
+    property: keyof TypewriterState,
+    eventArgs?: any,
+    prepend = false
+  ) => {
     const eventItem = {
       eventName,
       eventArgs: eventArgs || {},
     };
 
-    if(prepend) {
-      this.state[property] = [
-        eventItem,
-        ...this.state[property],
-      ];
+    if (prepend) {
+      // @ts-ignore - fix the typing here
+      this.state[property] = [eventItem, ...this.state[property]];
     } else {
-      this.state[property] = [
-        ...this.state[property],
-        eventItem,
-      ];
+      // @ts-ignore - fix the typing here
+      this.state[property] = [...this.state[property], eventItem];
     }
 
     return this;
-  }
+  };
 
   /**
    * Run the event loop and do anything inside of the queue
@@ -495,7 +654,7 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   runEventLoop = () => {
-    if(!this.state.lastFrameTime) {
+    if (!this.state.lastFrameTime) {
       this.state.lastFrameTime = Date.now();
     }
 
@@ -503,29 +662,29 @@ class Typewriter {
     const nowTime = Date.now();
     const delta = nowTime - this.state.lastFrameTime;
 
-    if(!this.state.eventQueue.length) {
-      if(!this.options.loop) {
+    if (!this.state.eventQueue.length) {
+      if (!this.options.loop) {
         return;
       }
 
       // Reset event queue if we are looping
       this.state.eventQueue = [...this.state.calledEvents];
       this.state.calledEvents = [];
-      this.options = {...this.state.initialOptions};
+      this.options = { ...this.state.initialOptions };
     }
 
     // Request next frame
-    this.state.eventLoop = raf(this.runEventLoop);
+    this.state.eventLoop = window.requestAnimationFrame(this.runEventLoop);
 
     // Check if event loop is paused
-    if(this.state.eventLoopPaused) {
+    if (this.state.eventLoopPaused) {
       return;
     }
 
     // Check if state has pause until time
-    if(this.state.pauseUntil) {
+    if (this.state.pauseUntil) {
       // Check if event loop should be paused
-      if(nowTime < this.state.pauseUntil) {
+      if (nowTime < this.state.pauseUntil) {
         return;
       }
 
@@ -542,18 +701,27 @@ class Typewriter {
     // Setup delay variable
     let delay = 0;
 
+    if (!currentEvent) {
+      return;
+    }
     // Check if frame should run or be
     // skipped based on fps interval
-    if(
+    if (
       currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
       currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
     ) {
-      delay = this.options.deleteSpeed === 'natural' ? getRandomInteger(40, 80) : this.options.deleteSpeed;
+      delay =
+        this.options.deleteSpeed === "natural"
+          ? getRandomInteger(40, 80)
+          : this.options.deleteSpeed;
     } else {
-      delay = this.options.delay === 'natural' ? getRandomInteger(120, 160) : this.options.delay;
+      delay =
+        this.options.delay === "natural"
+          ? getRandomInteger(120, 160)
+          : this.options.delay;
     }
 
-    if(delta <= delay) {
+    if (delta <= delay) {
       return;
     }
 
@@ -563,20 +731,23 @@ class Typewriter {
     this.logInDevMode({ currentEvent, state: this.state, delay });
 
     // Run item from event loop
-    switch(eventName) {
+    switch (eventName) {
       case EVENT_NAMES.PASTE_STRING:
       case EVENT_NAMES.TYPE_CHARACTER: {
         const { character, node } = eventArgs;
         const textNode = document.createTextNode(character);
 
-        let textNodeToUse = textNode
+        let textNodeToUse: Text | null = textNode;
 
-        if(this.options.onCreateTextNode && typeof this.options.onCreateTextNode === 'function') {
-          textNodeToUse = this.options.onCreateTextNode(character, textNode)
+        if (
+          this.options.onCreateTextNode &&
+          typeof this.options.onCreateTextNode === "function"
+        ) {
+          textNodeToUse = this.options.onCreateTextNode(character, textNode);
         }
 
-        if(textNodeToUse) {
-          if(node) {
+        if (textNodeToUse) {
+          if (node) {
             node.appendChild(textNodeToUse);
           } else {
             this.state.elements.wrapper.appendChild(textNodeToUse);
@@ -622,7 +793,7 @@ class Typewriter {
       case EVENT_NAMES.ADD_HTML_TAG_ELEMENT: {
         const { node, parentNode } = currentEvent.eventArgs;
 
-        if(!parentNode) {
+        if (!parentNode) {
           this.state.elements.wrapper.appendChild(node);
         } else {
           parentNode.appendChild(node);
@@ -642,17 +813,17 @@ class Typewriter {
       case EVENT_NAMES.REMOVE_ALL: {
         const { visibleNodes } = this.state;
         const { speed } = eventArgs;
-        const removeAllEventItems = [];
+        const removeAllEventItems: EventQueueItem[] = [];
 
         // Change speed before deleteing
-        if(speed) {
+        if (speed) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
             eventArgs: { speed, temp: true },
           });
         }
 
-        for(let i = 0, length = visibleNodes.length; i < length; i++) {
+        for (let i = 0, length = visibleNodes.length; i < length; i++) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
             eventArgs: { removingCharacterNode: false },
@@ -660,7 +831,7 @@ class Typewriter {
         }
 
         // Change speed back to normal after deleteing
-        if(speed) {
+        if (speed) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
             eventArgs: { speed: this.options.deleteSpeed, temp: true },
@@ -674,23 +845,27 @@ class Typewriter {
 
       case EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE: {
         const { removingCharacterNode } = currentEvent.eventArgs;
+        const lastVisibleNode = this.state.visibleNodes.pop();
 
-        if(this.state.visibleNodes.length) {
-          const { type, node, character } = this.state.visibleNodes.pop();
+        if (lastVisibleNode) {
+          const { type, node, character } = lastVisibleNode;
 
-          if(this.options.onRemoveNode && typeof this.options.onRemoveNode === 'function') {
+          if (
+            this.options.onRemoveNode &&
+            typeof this.options.onRemoveNode === "function"
+          ) {
             this.options.onRemoveNode({
               node,
               character,
-            })
+            });
           }
 
-          if(node) {
-            node.parentNode.removeChild(node);
+          if (node) {
+            node.parentNode?.removeChild(node);
           }
-          
+
           // Remove extra node as current deleted one is just an empty wrapper node
-          if(type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
+          if (type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
             eventQueue.unshift({
               eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
               eventArgs: {},
@@ -722,15 +897,12 @@ class Typewriter {
     }
 
     // Add que item to called queue if we are looping
-    if(this.options.loop) {
-      if(
+    if (this.options.loop) {
+      if (
         currentEvent.eventName !== EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE &&
         !(currentEvent.eventArgs && currentEvent.eventArgs.temp)
       ) {
-        this.state.calledEvents = [
-          ...this.state.calledEvents,
-          currentEvent
-        ];
+        this.state.calledEvents = [...this.state.calledEvents, currentEvent];
       }
     }
 
@@ -739,7 +911,7 @@ class Typewriter {
 
     // Set last frame time so it can be used to calculate next frame
     this.state.lastFrameTime = nowTime;
-  }
+  };
 
   /**
    * Log a message in development mode
@@ -748,10 +920,11 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   logInDevMode(message) {
-    if(this.options.devMode) {
+    if (this.options.devMode) {
       console.log(message);
     }
   }
 }
 
 export default Typewriter;
+export type { TypewriterOptions };
