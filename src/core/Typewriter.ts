@@ -11,7 +11,23 @@ type OnRemoveArgs = {
   character?: string;
 };
 
-type Speed = "natural" | number;
+type Speed = "natural" | number | (() => number);
+
+type OnTypeArgs = {
+  typewriter: Typewriter;
+  character: string;
+  characterIndex: number;
+  stringIndex: number;
+  currentString: string;
+};
+
+type OnDeleteArgs = {
+  typewriter: Typewriter;
+  character: string;
+  characterIndex: number;
+  stringIndex: number;
+  currentString: string;
+};
 
 type TypewriterOptions = {
   /**
@@ -101,6 +117,16 @@ type TypewriterOptions = {
    * @default null
    */
   onRemoveNode?: (param: OnRemoveArgs) => void;
+
+  /**
+   * Callback function when a character is typed
+   */
+  onType?: (param: OnTypeArgs) => void;
+
+  /**
+   * Callback function when a character is typed
+   */
+  onDelete?: (param: OnDeleteArgs) => void;
 };
 
 type EventQueueItem = {
@@ -111,6 +137,9 @@ type EventQueueItem = {
 type VisibleNode = {
   type: string;
   character?: string;
+  characterIndex?: number;
+  stringIndex?: number;
+  currentString?: string;
   node?: Node | null;
   parentNode?: HTMLElement;
 };
@@ -311,8 +340,10 @@ class Typewriter {
       return this;
     }
 
-    (this.options.strings || []).forEach((string) => {
-      this.typeString(string)
+    (this.options.strings || []).forEach((string, i) => {
+      this.typeString(string, {
+        stringIndex: i,
+      })
         .pauseFor(this.options.pauseFor || 0)
         .deleteAll(this.options.deleteSpeed);
     });
@@ -325,11 +356,21 @@ class Typewriter {
    *
    * @param string String to type
    * @param node Node to add character inside of
+   * @param stringIndex Index of string in strings array
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeString = (string: string, node: HTMLElement | null = null) => {
+  typeString = (
+    string: string,
+    {
+      node = null,
+      stringIndex = 0,
+    }: {
+      node?: HTMLElement | null;
+      stringIndex?: number;
+    } = {}
+  ) => {
     if (doesStringContainHTMLTag(string)) {
       return this.typeOutHTMLString(string, node);
     }
@@ -340,7 +381,7 @@ class Typewriter {
         typeof stringSplitter === "function"
           ? stringSplitter(string)
           : string.split("");
-      this.typeCharacters(characters, node);
+      this.typeCharacters(characters, string, stringIndex, node);
     }
 
     return this;
@@ -409,12 +450,12 @@ class Typewriter {
 
           pasteEffect
             ? this.pasteString(nodeHTML, node)
-            : this.typeString(nodeHTML, node);
+            : this.typeString(nodeHTML, { node });
         } else {
           if (node.textContent) {
             pasteEffect
               ? this.pasteString(node.textContent, parentNode)
-              : this.typeString(node.textContent, parentNode);
+              : this.typeString(node.textContent, { node: parentNode });
           }
         }
       }
@@ -532,18 +573,31 @@ class Typewriter {
    * Add type character event for each character
    *
    * @param characters Array of characters
+   * @param originalString Original string to be typed out
+   * @param stringIndex index of all strings to be typed out
    * @param node Node to add character inside of
    * @return {Typewriter}
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  typeCharacters = (characters: string[], node: HTMLElement | null = null) => {
+  typeCharacters = (
+    characters: string[],
+    originalString: string,
+    stringIndex: number = 0,
+    node: HTMLElement | null = null
+  ) => {
     if (!characters || !Array.isArray(characters)) {
       throw new Error("Characters must be an array");
     }
 
-    characters.forEach((character) => {
-      this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, { character, node });
+    characters.forEach((character, i) => {
+      this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, {
+        character,
+        characterIndex: i,
+        node,
+        originalString,
+        stringIndex,
+      });
     });
 
     return this;
@@ -706,21 +760,16 @@ class Typewriter {
     if (!currentEvent) {
       return;
     }
+
     // Check if frame should run or be
     // skipped based on fps interval
     if (
       currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
       currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
     ) {
-      delay =
-        typeof this.options.deleteSpeed !== "number"
-          ? getRandomInteger(40, 80)
-          : this.options.deleteSpeed;
+      delay = getDeleteDelay(this.options);
     } else {
-      delay =
-        typeof this.options.delay !== "number"
-          ? getRandomInteger(120, 160)
-          : this.options.delay;
+      delay = getDelay(this.options);
     }
 
     if (delta <= delay) {
@@ -736,7 +785,8 @@ class Typewriter {
     switch (eventName) {
       case EVENT_NAMES.PASTE_STRING:
       case EVENT_NAMES.TYPE_CHARACTER: {
-        const { character, node } = eventArgs;
+        const { character, node, originalString, characterIndex, stringIndex } =
+          eventArgs;
         const textNode = document.createTextNode(character);
 
         let textNodeToUse: Text | null = textNode;
@@ -761,9 +811,20 @@ class Typewriter {
           {
             type: VISIBLE_NODE_TYPES.TEXT_NODE,
             character,
+            characterIndex,
+            currentString: originalString,
+            stringIndex,
             node: textNodeToUse,
           },
         ];
+
+        this.options.onType?.({
+          typewriter: this,
+          character,
+          characterIndex,
+          stringIndex,
+          currentString: originalString,
+        });
 
         break;
       }
@@ -817,7 +878,7 @@ class Typewriter {
         const { speed } = eventArgs;
         const removeAllEventItems: EventQueueItem[] = [];
 
-        // Change speed before deleteing
+        // Change speed before deleting
         if (speed) {
           removeAllEventItems.push({
             eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
@@ -850,17 +911,19 @@ class Typewriter {
         const lastVisibleNode = this.state.visibleNodes.pop();
 
         if (lastVisibleNode) {
-          const { type, node, character } = lastVisibleNode;
+          const {
+            type,
+            node,
+            character,
+            characterIndex,
+            currentString,
+            stringIndex,
+          } = lastVisibleNode;
 
-          if (
-            this.options.onRemoveNode &&
-            typeof this.options.onRemoveNode === "function"
-          ) {
-            this.options.onRemoveNode({
-              node,
-              character,
-            });
-          }
+          this.options.onRemoveNode?.({
+            node,
+            character,
+          });
 
           if (node) {
             node.parentNode?.removeChild(node);
@@ -873,6 +936,14 @@ class Typewriter {
               eventArgs: {},
             });
           }
+
+          this.options.onDelete?.({
+            typewriter: this,
+            character: character ?? "",
+            characterIndex: characterIndex ?? -1,
+            currentString: currentString ?? "",
+            stringIndex: stringIndex ?? -1,
+          });
         }
         break;
       }
@@ -933,6 +1004,30 @@ class Typewriter {
       ...options,
     };
   }
+}
+
+function getDelay(options: TypewriterOptions) {
+  if (typeof options.delay === "number") {
+    return options.delay;
+  }
+
+  if (typeof options.delay === "function") {
+    return options.delay();
+  }
+
+  return getRandomInteger(120, 160);
+}
+
+function getDeleteDelay(options: TypewriterOptions) {
+  if (typeof options.deleteSpeed === "number") {
+    return options.deleteSpeed;
+  }
+
+  if (typeof options.deleteSpeed === "function") {
+    return options.deleteSpeed();
+  }
+
+  return getRandomInteger(40, 80);
 }
 
 const resetStylesAdded = () => {

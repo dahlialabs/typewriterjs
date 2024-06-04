@@ -44,7 +44,7 @@ describe("Typewriter component", () => {
 
     unmount();
 
-    expect(instance.stop).toHaveBeenCalledTimes(1);
+    expect(instance!.stop).toHaveBeenCalledTimes(1);
   });
 
   it("should create new typewriter instance once options prop changes", () => {

@@ -364,7 +364,7 @@ describe("Typewriter", () => {
 
     describe("typeCharacters", () => {
       it("should add event items for amount of characters", () => {
-        instance.typeCharacters(["h", "e", "l", "l", "0"]);
+        instance.typeCharacters(["h", "e", "l", "l", "0"], "hello", 0);
         expect(instance.state.eventQueue).toMatchSnapshot();
       });
 
