@@ -11,7 +11,7 @@ type OnRemoveArgs = {
   character?: string;
 };
 
-type Speed = "natural" | number | (() => number);
+type Speed = "natural" | number | ((eventArgs?: any) => number);
 
 type OnTypeArgs = {
   typewriter: Typewriter;
@@ -49,7 +49,7 @@ type TypewriterOptions = {
    */
   delay?: Speed;
   /**
-   * The delay between deleting each character.
+   * The delay before deletion starts.
    */
   pauseFor?: number;
   /**
@@ -64,6 +64,12 @@ type TypewriterOptions = {
    * @default false
    */
   loop?: boolean;
+  /**
+   * Delay between loops
+   *
+   * @default 0
+   */
+  loopDelay?: number;
   /**
    * Whether to autostart typing strings or not. You are required to provide
    * strings option.
@@ -318,7 +324,7 @@ class Typewriter {
    *
    * @author Tameem Safi <tamem@safi.me.uk>
    */
-  pauseFor = (ms: number) => {
+  pauseFor = (ms: number = 0) => {
     this.addEventToQueue(EVENT_NAMES.PAUSE_FOR, { ms });
 
     return this;
@@ -725,6 +731,14 @@ class Typewriter {
 
       // Reset event queue if we are looping
       this.state.eventQueue = [...this.state.calledEvents];
+
+      if (this.options.loopDelay) {
+        this.state.eventQueue.unshift({
+          eventName: EVENT_NAMES.PAUSE_FOR,
+          eventArgs: { ms: this.options.loopDelay },
+        });
+      }
+
       this.state.calledEvents = [];
       this.options = { ...this.state.initialOptions };
     }
@@ -767,9 +781,9 @@ class Typewriter {
       currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
       currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
     ) {
-      delay = getDeleteDelay(this.options);
+      delay = getDeleteDelay(this.options, currentEvent.eventArgs);
     } else {
-      delay = getDelay(this.options);
+      delay = getDelay(this.options, currentEvent.eventArgs);
     }
 
     if (delta <= delay) {
@@ -1006,25 +1020,25 @@ class Typewriter {
   }
 }
 
-function getDelay(options: TypewriterOptions) {
+function getDelay(options: TypewriterOptions, eventArgs?: any) {
   if (typeof options.delay === "number") {
     return options.delay;
   }
 
   if (typeof options.delay === "function") {
-    return options.delay();
+    return options.delay(eventArgs);
   }
 
   return getRandomInteger(120, 160);
 }
 
-function getDeleteDelay(options: TypewriterOptions) {
+function getDeleteDelay(options: TypewriterOptions, eventArgs?: any) {
   if (typeof options.deleteSpeed === "number") {
     return options.deleteSpeed;
   }
 
   if (typeof options.deleteSpeed === "function") {
-    return options.deleteSpeed();
+    return options.deleteSpeed(eventArgs);
   }
 
   return getRandomInteger(40, 80);
