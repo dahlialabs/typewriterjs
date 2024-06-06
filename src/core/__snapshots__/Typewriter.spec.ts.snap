@@ -682,6 +682,46 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event item wh
     },
     "eventName": "CHANGE_CURSOR",
   },
+  {
+    "eventArgs": {
+      "character": "t",
+      "characterIndex": 0,
+      "node": null,
+      "originalString": "test",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
+      "character": "e",
+      "characterIndex": 1,
+      "node": null,
+      "originalString": "test",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
+      "character": "s",
+      "characterIndex": 2,
+      "node": null,
+      "originalString": "test",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
+      "character": "t",
+      "characterIndex": 3,
+      "node": null,
+      "originalString": "test",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
 ]
 `;
 
@@ -816,6 +856,16 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
   },
   {
     "eventArgs": {
+      "character": " ",
+      "characterIndex": 0,
+      "node": null,
+      "originalString": " ",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
       "node": <div />,
       "parentNode": null,
     },
@@ -943,6 +993,16 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
   },
   {
     "eventArgs": {
+      "character": " ",
+      "characterIndex": 0,
+      "node": null,
+      "originalString": " ",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
       "node": <p />,
       "parentNode": null,
     },
@@ -1008,6 +1068,46 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
     },
     "eventName": "TYPE_CHARACTER",
   },
+  {
+    "eventArgs": {
+      "character": "!",
+      "characterIndex": 0,
+      "node": null,
+      "originalString": "!!!!",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
+      "character": "!",
+      "characterIndex": 1,
+      "node": null,
+      "originalString": "!!!!",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
+      "character": "!",
+      "characterIndex": 2,
+      "node": null,
+      "originalString": "!!!!",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
+      "character": "!",
+      "characterIndex": 3,
+      "node": null,
+      "originalString": "!!!!",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
 ]
 `;
 
@@ -1036,26 +1136,12 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
   },
   {
     "eventArgs": {
-      "node": <p />,
-      "parentNode": <div
-        class="wrapper"
-      />,
-    },
-    "eventName": "ADD_HTML_TAG_ELEMENT",
-  },
-  {
-    "eventArgs": {
-      "node": <strong />,
-      "parentNode": <p />,
-    },
-    "eventName": "ADD_HTML_TAG_ELEMENT",
-  },
-  {
-    "eventArgs": {
       "character": "t",
       "characterIndex": 0,
-      "node": <strong />,
-      "originalString": "test",
+      "node": <div
+        class="wrapper"
+      />,
+      "originalString": "test!",
       "stringIndex": 0,
     },
     "eventName": "TYPE_CHARACTER",
@@ -1064,8 +1150,10 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
     "eventArgs": {
       "character": "e",
       "characterIndex": 1,
-      "node": <strong />,
-      "originalString": "test",
+      "node": <div
+        class="wrapper"
+      />,
+      "originalString": "test!",
       "stringIndex": 0,
     },
     "eventName": "TYPE_CHARACTER",
@@ -1074,8 +1162,10 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
     "eventArgs": {
       "character": "s",
       "characterIndex": 2,
-      "node": <strong />,
-      "originalString": "test",
+      "node": <div
+        class="wrapper"
+      />,
+      "originalString": "test!",
       "stringIndex": 0,
     },
     "eventName": "TYPE_CHARACTER",
@@ -1084,8 +1174,22 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
     "eventArgs": {
       "character": "t",
       "characterIndex": 3,
-      "node": <strong />,
-      "originalString": "test",
+      "node": <div
+        class="wrapper"
+      />,
+      "originalString": "test!",
+      "stringIndex": 0,
+    },
+    "eventName": "TYPE_CHARACTER",
+  },
+  {
+    "eventArgs": {
+      "character": "!",
+      "characterIndex": 4,
+      "node": <div
+        class="wrapper"
+      />,
+      "originalString": "test!",
       "stringIndex": 0,
     },
     "eventName": "TYPE_CHARACTER",

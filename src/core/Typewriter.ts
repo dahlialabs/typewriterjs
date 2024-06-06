@@ -378,7 +378,7 @@ class Typewriter {
     } = {}
   ) => {
     if (doesStringContainHTMLTag(string)) {
-      return this.typeOutHTMLString(string, node);
+      return this.typeOutHTMLString(string, stringIndex, node);
     }
 
     if (string) {
@@ -402,9 +402,13 @@ class Typewriter {
    *
    * @author Luiz Felicio <unifelicio@gmail.com>
    */
-  pasteString = (string: string, node: HTMLElement | null = null) => {
+  pasteString = (
+    string: string,
+    stringIndex: number = 0,
+    node: HTMLElement | null = null
+  ) => {
     if (doesStringContainHTMLTag(string)) {
-      return this.typeOutHTMLString(string, node, true);
+      return this.typeOutHTMLString(string, stringIndex, node, true);
     }
 
     if (string) {
@@ -429,6 +433,7 @@ class Typewriter {
    */
   typeOutHTMLString = (
     string: string,
+    stringIndex: number = 0,
     parentNode: HTMLElement | null = null,
     pasteEffect?: boolean
   ) => {
@@ -437,14 +442,9 @@ class Typewriter {
     if (childNodes.length > 0) {
       for (let i = 0; i < childNodes.length; i++) {
         const node = childNodes[i];
+        const nodeHTML = node.textContent;
 
-        if (!(node instanceof HTMLElement)) {
-          continue;
-        }
-
-        const nodeHTML = node.innerHTML;
-
-        if (node && node.nodeType !== 3) {
+        if (node && node instanceof HTMLElement) {
           // Reset innerText of HTML element
           node.innerHTML = "";
 
@@ -455,13 +455,16 @@ class Typewriter {
           });
 
           pasteEffect
-            ? this.pasteString(nodeHTML, node)
-            : this.typeString(nodeHTML, { node });
+            ? this.pasteString(nodeHTML || "", stringIndex, node)
+            : this.typeString(nodeHTML || "", { node, stringIndex });
         } else {
           if (node.textContent) {
             pasteEffect
-              ? this.pasteString(node.textContent, parentNode)
-              : this.typeString(node.textContent, { node: parentNode });
+              ? this.pasteString(node.textContent, stringIndex, parentNode)
+              : this.typeString(node.textContent, {
+                  node: parentNode,
+                  stringIndex,
+                });
           }
         }
       }

@@ -187,6 +187,7 @@ describe("Typewriter", () => {
         expect(instance.typeOutHTMLString).toHaveBeenCalledTimes(1);
         expect(instance.typeOutHTMLString).toHaveBeenCalledWith(
           "Hello <strong>world</strong>!",
+          0,
           null,
           true
         );
@@ -234,6 +235,7 @@ describe("Typewriter", () => {
         parentNode.className = "parent-node";
         instance.typeOutHTMLString(
           '<div class="wrapper"><p><strong>test</strong></p>!</div>',
+          0,
           parentNode
         );
         expect(instance.state.eventQueue).toMatchSnapshot();
