@@ -719,6 +719,7 @@ class Typewriter {
    * @author Tameem Safi <tamem@safi.me.uk>
    */
   runEventLoop = () => {
+    const hasntRunYet = !this.state.lastFrameTime;
     if (!this.state.lastFrameTime) {
       this.state.lastFrameTime = Date.now();
     }
@@ -735,7 +736,7 @@ class Typewriter {
       // Reset event queue if we are looping
       this.state.eventQueue = [...this.state.calledEvents];
 
-      if (this.options.loopDelay) {
+      if (this.options.loopDelay && hasntRunYet) {
         this.state.eventQueue.unshift({
           eventName: EVENT_NAMES.PAUSE_FOR,
           eventArgs: { ms: this.options.loopDelay },
