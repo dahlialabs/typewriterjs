@@ -19,6 +19,7 @@ type OnTypeArgs = {
   characterIndex: number;
   stringIndex: number;
   currentString: string;
+  htmlTextInfo: HTMLTextInfo | null;
 };
 
 type OnDeleteArgs = {
@@ -27,6 +28,16 @@ type OnDeleteArgs = {
   characterIndex: number;
   stringIndex: number;
   currentString: string;
+};
+
+/**
+ * Information related to the provided HTML text
+ */
+type HTMLTextInfo = {
+  text: string;
+  partIndex: number;
+  parts: string[];
+  originalString: string;
 };
 
 type TypewriterOptions = {
@@ -372,9 +383,11 @@ class Typewriter {
     {
       node = null,
       stringIndex = 0,
+      htmlTextInfo = null,
     }: {
       node?: HTMLElement | null;
       stringIndex?: number;
+      htmlTextInfo?: HTMLTextInfo | null;
     } = {}
   ) => {
     if (doesStringContainHTMLTag(string)) {
@@ -387,7 +400,7 @@ class Typewriter {
         typeof stringSplitter === "function"
           ? stringSplitter(string)
           : string.split("");
-      this.typeCharacters(characters, string, stringIndex, node);
+      this.typeCharacters(characters, string, stringIndex, node, htmlTextInfo);
     }
 
     return this;
@@ -405,7 +418,8 @@ class Typewriter {
   pasteString = (
     string: string,
     stringIndex: number = 0,
-    node: HTMLElement | null = null
+    node: HTMLElement | null = null,
+    htmlTextInfo: HTMLTextInfo | null = null
   ) => {
     if (doesStringContainHTMLTag(string)) {
       return this.typeOutHTMLString(string, stringIndex, node, true);
@@ -415,6 +429,7 @@ class Typewriter {
       this.addEventToQueue(EVENT_NAMES.PASTE_STRING, {
         character: string,
         node,
+        htmlTextInfo,
       });
     }
 
@@ -440,9 +455,18 @@ class Typewriter {
     const childNodes = getDOMElementFromString(string);
 
     if (childNodes.length > 0) {
+      const allTextParts = Array.from(childNodes).map(
+        (node) => node.textContent || ""
+      );
       for (let i = 0; i < childNodes.length; i++) {
         const node = childNodes[i];
-        const nodeHTML = node.textContent;
+        const nodeText = node.textContent || "";
+        const htmlTextInfo: HTMLTextInfo = {
+          text: nodeText,
+          partIndex: i,
+          parts: allTextParts,
+          originalString: string,
+        };
 
         if (node && node instanceof HTMLElement) {
           // Reset innerText of HTML element
@@ -455,8 +479,12 @@ class Typewriter {
           });
 
           pasteEffect
-            ? this.pasteString(nodeHTML || "", stringIndex, node)
-            : this.typeString(nodeHTML || "", { node, stringIndex });
+            ? this.pasteString(nodeText, stringIndex, node)
+            : this.typeString(nodeText, {
+                node,
+                stringIndex,
+                htmlTextInfo,
+              });
         } else {
           if (node.textContent) {
             pasteEffect
@@ -464,6 +492,7 @@ class Typewriter {
               : this.typeString(node.textContent, {
                   node: parentNode,
                   stringIndex,
+                  htmlTextInfo,
                 });
           }
         }
@@ -582,7 +611,7 @@ class Typewriter {
    * Add type character event for each character
    *
    * @param characters Array of characters
-   * @param originalString Original string to be typed out
+   * @param stringPart Original string to be typed out, or potentially part of string if HTML was used
    * @param stringIndex index of all strings to be typed out
    * @param node Node to add character inside of
    * @return {Typewriter}
@@ -591,9 +620,10 @@ class Typewriter {
    */
   typeCharacters = (
     characters: string[],
-    originalString: string,
+    stringPart: string,
     stringIndex: number = 0,
-    node: HTMLElement | null = null
+    node: HTMLElement | null = null,
+    htmlTextInfo: HTMLTextInfo | null = null
   ) => {
     if (!characters || !Array.isArray(characters)) {
       throw new Error("Characters must be an array");
@@ -604,8 +634,9 @@ class Typewriter {
         character,
         characterIndex: i,
         node,
-        originalString,
+        stringPart,
         stringIndex,
+        htmlTextInfo,
       });
     });
 
@@ -786,8 +817,17 @@ class Typewriter {
       currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
     ) {
       delay = getDeleteDelay(this.options, currentEvent.eventArgs);
+      // @ts-expect-error
+      window.delay = null;
     } else {
       delay = getDelay(this.options, currentEvent.eventArgs);
+      // @ts-expect-error
+      if (!window.delay) {
+        // @ts-expect-error
+        window.delay = Date.now();
+      }
+
+      // console.log("Typewriter.ts", window.delay - this.state.lastFrameTime);
     }
 
     if (delta <= delay) {
@@ -803,8 +843,14 @@ class Typewriter {
     switch (eventName) {
       case EVENT_NAMES.PASTE_STRING:
       case EVENT_NAMES.TYPE_CHARACTER: {
-        const { character, node, originalString, characterIndex, stringIndex } =
-          eventArgs;
+        const {
+          character,
+          node,
+          stringPart,
+          characterIndex,
+          stringIndex,
+          htmlTextInfo,
+        } = eventArgs;
         const textNode = document.createTextNode(character);
 
         let textNodeToUse: Text | null = textNode;
@@ -830,7 +876,7 @@ class Typewriter {
             type: VISIBLE_NODE_TYPES.TEXT_NODE,
             character,
             characterIndex,
-            currentString: originalString,
+            currentString: stringPart,
             stringIndex,
             node: textNodeToUse,
           },
@@ -841,7 +887,8 @@ class Typewriter {
           character,
           characterIndex,
           stringIndex,
-          currentString: originalString,
+          currentString: stringPart,
+          htmlTextInfo,
         });
 
         break;
