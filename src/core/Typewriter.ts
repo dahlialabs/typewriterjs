@@ -460,6 +460,9 @@ class Typewriter {
       );
       for (let i = 0; i < childNodes.length; i++) {
         const node = childNodes[i];
+        if (!node) {
+          continue;
+        }
         const nodeText = node.textContent || "";
         const htmlTextInfo: HTMLTextInfo = {
           text: nodeText,
@@ -817,17 +820,8 @@ class Typewriter {
       currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER
     ) {
       delay = getDeleteDelay(this.options, currentEvent.eventArgs);
-      // @ts-expect-error
-      window.delay = null;
     } else {
       delay = getDelay(this.options, currentEvent.eventArgs);
-      // @ts-expect-error
-      if (!window.delay) {
-        // @ts-expect-error
-        window.delay = Date.now();
-      }
-
-      // console.log("Typewriter.ts", window.delay - this.state.lastFrameTime);
     }
 
     if (delta <= delay) {
