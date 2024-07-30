@@ -1,7 +1,7 @@
 {
   "name": "typewriter-effect",
   "version": "2.21.0",
-  "main": "src/react/index.ts",
+  "main": "dist/react/index.js",
   "keywords": [
     "typewriter",
     "typewriter effect",
@@ -14,7 +14,8 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --env=jsdom",
-    "test:watch": "jest --env=jsdom --watch"
+    "test:watch": "jest --env=jsdom --watch",
+    "build": "tsc"
   },
   "peerDependencies": {
     "react": "^17.x || ^18.x",
