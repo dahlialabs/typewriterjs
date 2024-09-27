@@ -18,6 +18,7 @@
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "declaration": true,
+    "noUncheckedIndexedAccess": true,
     "jsx": "react"
   },
   "include": [

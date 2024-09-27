@@ -130,9 +130,76 @@ type TypewriterOptions = {
      */
     onDelete?: (param: OnDeleteArgs) => void;
 };
-type EventQueueItem = {
-    eventName: string;
-    eventArgs?: any;
+export type EventQueueItem = {
+    eventName: "type_character";
+    eventArgs: {
+        character: string;
+        node: HTMLElement | null;
+        stringPart: string;
+        characterIndex: number;
+        stringIndex: number;
+        htmlTextInfo: HTMLTextInfo | null;
+    };
+} | {
+    eventName: "paste_string";
+    eventArgs: {
+        character: string;
+        node: HTMLElement | null;
+        htmlTextInfo: HTMLTextInfo | null;
+    };
+} | {
+    eventName: "remove_character";
+    eventArgs: {};
+} | {
+    eventName: "remove_last_visible_node";
+    eventArgs: {
+        removingCharacterNode: boolean;
+    };
+} | {
+    eventName: "pause_for";
+    eventArgs: {
+        ms: number;
+    };
+} | {
+    eventName: "call_function";
+    eventArgs: {
+        cb: (args: {
+            elements: TypewriterState["elements"];
+        }) => void;
+        thisArg?: any;
+    };
+} | {
+    eventName: "add_html_tag_element";
+    eventArgs: {
+        node: HTMLElement;
+        parentNode: HTMLElement | null;
+    };
+} | {
+    eventName: "remove_all";
+    eventArgs: {
+        speed: Speed | null;
+    };
+} | {
+    eventName: "change_delete_speed";
+    eventArgs: {
+        speed: Speed | null;
+        temp?: boolean;
+    };
+} | {
+    eventName: "remove_last_visible_node";
+    eventArgs: {
+        removingCharacterNode?: boolean;
+    };
+} | {
+    eventName: "change_delay";
+    eventArgs: {
+        delay: Speed;
+    };
+} | {
+    eventName: "change_cursor";
+    eventArgs: {
+        cursor: string | null;
+    };
 };
 type VisibleNode = {
     type: string;
@@ -325,37 +392,35 @@ declare class Typewriter {
     /**
      * Add an event to the event queue
      *
-     * @param eventName Name of the event
+     * @param eventItem Event queue item
      * @param eventArgs Arguments to pass to event callback
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
      *
      * @author Tameem Safi <tamem@safi.me.uk>
      */
-    addEventToQueue: (eventName: string, eventArgs?: any, prepend?: boolean) => this;
+    addEventToQueue: (eventItem: EventQueueItem, prepend?: boolean) => this;
     /**
      * Add an event to reverse called events used for looping
      *
-     * @param eventName Name of the event
-     * @param eventArgs Arguments to pass to event callback
+     * @param eventItem Event queue item
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
      *
      * @author Tameem Safi <tamem@safi.me.uk>
      */
-    addReverseCalledEvent: (eventName: string, eventArgs?: any, prepend?: boolean) => this;
+    addReverseCalledEvent: (eventItem: EventQueueItem, prepend?: boolean) => this;
     /**
      * Add an event to correct state property
      *
-     * @param eventName Name of the event
+     * @param eventItem Event queue item
      * @param property  Property name of state object
-     * @param eventArgs Arguments to pass to event callback
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
      *
      * @author Tameem Safi <tamem@safi.me.uk>
      */
-    addEventToStateProperty: (eventName: string, property: keyof TypewriterState, eventArgs?: any, prepend?: boolean) => this;
+    addEventToStateProperty: (eventItem: EventQueueItem, property: keyof TypewriterState, prepend?: boolean) => this;
     /**
      * Run the event loop and do anything inside of the queue
      *

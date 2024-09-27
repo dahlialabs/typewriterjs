@@ -1,8 +1,9 @@
 import Typewriter, {
+  EventQueueItem,
   type TypewriterOptions,
   resetStylesAdded,
 } from "./Typewriter";
-import { EVENT_NAMES, VISIBLE_NODE_TYPES, STYLES } from "./constants";
+import { VISIBLE_NODE_TYPES, STYLES } from "./constants";
 
 const raf = jest.fn((fn) => {
   fn();
@@ -140,10 +141,12 @@ describe("Typewriter", () => {
 
     it("pauseFor should correctly add event item to queue", () => {
       instance.pauseFor(5000);
-      expect(instance.state.eventQueue[2].eventName).toEqual(
-        EVENT_NAMES.PAUSE_FOR
-      );
-      expect(instance.state.eventQueue[2].eventArgs.ms).toEqual(5000);
+      const event = instance.state.eventQueue[2]!;
+
+      if (event.eventName !== "pause_for") {
+        throw new Error("Event name is not correct");
+      }
+      expect(event.eventArgs.ms).toEqual(5000);
     });
 
     describe("typeOutAllStrings", () => {
@@ -166,11 +169,9 @@ describe("Typewriter", () => {
         instance.typeString("Hello <strong>world</strong>!");
         expect(instance.typeOutHTMLString).toHaveBeenCalledTimes(1);
         expect(instance.state.eventQueue.length).toEqual(2);
-        expect(instance.state.eventQueue[0].eventName).toEqual(
-          EVENT_NAMES.REMOVE_ALL
-        );
-        expect(instance.state.eventQueue[1].eventName).toEqual(
-          EVENT_NAMES.CHANGE_CURSOR
+        expect(instance.state.eventQueue[0]!.eventName).toEqual("remove_all");
+        expect(instance.state.eventQueue[1]!.eventName).toEqual(
+          "change_cursor"
         );
       });
 
@@ -192,11 +193,9 @@ describe("Typewriter", () => {
           true
         );
         expect(instance.state.eventQueue.length).toEqual(2);
-        expect(instance.state.eventQueue[0].eventName).toEqual(
-          EVENT_NAMES.REMOVE_ALL
-        );
-        expect(instance.state.eventQueue[1].eventName).toEqual(
-          EVENT_NAMES.CHANGE_CURSOR
+        expect(instance.state.eventQueue[0]!.eventName).toEqual("remove_all");
+        expect(instance.state.eventQueue[1]!.eventName).toEqual(
+          "change_cursor"
         );
       });
 
@@ -210,11 +209,9 @@ describe("Typewriter", () => {
       it("should not add anything to event queue if string is empty", () => {
         instance.typeOutHTMLString("");
         expect(instance.state.eventQueue.length).toEqual(2);
-        expect(instance.state.eventQueue[0].eventName).toEqual(
-          EVENT_NAMES.REMOVE_ALL
-        );
-        expect(instance.state.eventQueue[1].eventName).toEqual(
-          EVENT_NAMES.CHANGE_CURSOR
+        expect(instance.state.eventQueue[0]!.eventName).toEqual("remove_all");
+        expect(instance.state.eventQueue[1]!.eventName).toEqual(
+          "change_cursor"
         );
       });
 
@@ -245,28 +242,37 @@ describe("Typewriter", () => {
     describe("deleteAll", () => {
       it("should add remove all event item with natural speed by default", () => {
         instance.deleteAll();
-        expect(instance.state.eventQueue[2].eventName).toEqual(
-          EVENT_NAMES.REMOVE_ALL
-        );
-        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual("natural");
+        const event = instance.state.eventQueue[2];
+
+        if (event?.eventName !== "remove_all") {
+          throw new Error("Event name is not correct");
+        }
+
+        expect(event.eventArgs.speed).toEqual("natural");
       });
 
-      it("should add remove all event item with natural speed by default", () => {
+      it("should add remove all event item with 500ms speed by default", () => {
         instance.deleteAll(500);
-        expect(instance.state.eventQueue[2].eventName).toEqual(
-          EVENT_NAMES.REMOVE_ALL
-        );
-        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(500);
+        const event = instance.state.eventQueue[2]!;
+
+        if (event.eventName !== "remove_all") {
+          throw new Error("Event name is not correct");
+        }
+
+        expect(event.eventArgs.speed).toEqual(500);
       });
     });
 
     describe("changeDeleteSpeed", () => {
       it("should add event item with new speed", () => {
         instance.changeDeleteSpeed(500);
-        expect(instance.state.eventQueue[2].eventName).toEqual(
-          EVENT_NAMES.CHANGE_DELETE_SPEED
-        );
-        expect(instance.state.eventQueue[2].eventArgs.speed).toEqual(500);
+        const event = instance.state.eventQueue[2]!;
+
+        if (event.eventName !== "change_delete_speed") {
+          throw new Error("Event name is not correct");
+        }
+
+        expect(event.eventArgs.speed).toEqual(500);
       });
 
       it("should throw error if no new speed is provided", () => {
@@ -280,10 +286,13 @@ describe("Typewriter", () => {
     describe("changeDelay", () => {
       it("should add event item with new delay", () => {
         instance.changeDelay(500);
-        expect(instance.state.eventQueue[2].eventName).toEqual(
-          EVENT_NAMES.CHANGE_DELAY
-        );
-        expect(instance.state.eventQueue[2].eventArgs.delay).toEqual(500);
+        const event = instance.state.eventQueue[2]!;
+
+        if (event.eventName !== "change_delay") {
+          throw new Error("Event name is not correct");
+        }
+
+        expect(event.eventArgs.delay).toEqual(500);
       });
 
       it("should throw error if no new speed is provided", () => {
@@ -297,10 +306,12 @@ describe("Typewriter", () => {
     describe("changeCursor", () => {
       it("should add event item with new cursor", () => {
         instance.changeCursor("$");
-        expect(instance.state.eventQueue[2].eventName).toEqual(
-          EVENT_NAMES.CHANGE_CURSOR
-        );
-        expect(instance.state.eventQueue[2].eventArgs.cursor).toEqual("$");
+        const event = instance.state.eventQueue[2]!;
+
+        if (event.eventName !== "change_cursor") {
+          throw new Error("Event name is not correct");
+        }
+        expect(event.eventArgs.cursor).toEqual("$");
       });
 
       it("should throw error if no new cursor is provided", () => {
@@ -329,24 +340,27 @@ describe("Typewriter", () => {
       it("should add event items to call callback function", () => {
         const cb = () => {};
         instance.callFunction(cb);
-        expect(instance.state.eventQueue[2].eventName).toEqual(
-          EVENT_NAMES.CALL_FUNCTION
-        );
-        expect(instance.state.eventQueue[2].eventArgs.cb).toEqual(cb);
-        expect(instance.state.eventQueue[2].eventArgs.thisArg).toEqual(
-          undefined
-        );
+        const event = instance.state.eventQueue[2]!;
+
+        if (event.eventName !== "call_function") {
+          throw new Error("Event name is not correct");
+        }
+
+        expect(event.eventArgs.cb).toEqual(cb);
+        expect(event.eventArgs.thisArg).toEqual(undefined);
       });
 
       it("should add event items to call callback function with thisArg", () => {
         const cb = () => {};
         const thisArg = { hello: 1 };
         instance.callFunction(cb, thisArg);
-        expect(instance.state.eventQueue[2].eventName).toEqual(
-          EVENT_NAMES.CALL_FUNCTION
-        );
-        expect(instance.state.eventQueue[2].eventArgs.cb).toEqual(cb);
-        expect(instance.state.eventQueue[2].eventArgs.thisArg).toEqual(thisArg);
+        const event = instance.state.eventQueue[2]!;
+
+        if (event.eventName !== "call_function") {
+          throw new Error("Event name is not correct");
+        }
+        expect(event.eventArgs.cb).toEqual(cb);
+        expect(event.eventArgs.thisArg).toEqual(thisArg);
       });
 
       it("should throw error if callback function is not provided", () => {
@@ -409,12 +423,15 @@ describe("Typewriter", () => {
     describe("addEventToQueue", () => {
       it("should call addEventToStateProperty correctly", () => {
         instance.addEventToStateProperty = jest.fn();
-        instance.addEventToQueue("test", { hello: 1 }, false);
+        const eventItem: EventQueueItem = {
+          eventName: "change_delete_speed",
+          eventArgs: { speed: "natural" },
+        };
+        instance.addEventToQueue(eventItem, false);
         expect(instance.addEventToStateProperty).toHaveBeenCalledTimes(1);
         expect(instance.addEventToStateProperty).toHaveBeenCalledWith(
-          "test",
+          eventItem,
           "eventQueue",
-          { hello: 1 },
           false
         );
       });
@@ -424,12 +441,15 @@ describe("Typewriter", () => {
       it("should call addEventToStateProperty correctly when loop options is true", () => {
         instance.options.loop = true;
         instance.addEventToStateProperty = jest.fn();
-        instance.addReverseCalledEvent("test", { hello: 1 }, false);
+        const eventItem: EventQueueItem = {
+          eventName: "change_delete_speed",
+          eventArgs: { speed: "natural" },
+        };
+        instance.addReverseCalledEvent(eventItem, false);
         expect(instance.addEventToStateProperty).toHaveBeenCalledTimes(1);
         expect(instance.addEventToStateProperty).toHaveBeenCalledWith(
-          "test",
+          eventItem,
           "reverseCalledEvents",
-          { hello: 1 },
           false
         );
       });
@@ -437,48 +457,46 @@ describe("Typewriter", () => {
       it("should not call addEventToStateProperty correctly when loop options is false", () => {
         instance.options.loop = false;
         instance.addEventToStateProperty = jest.fn();
-        instance.addReverseCalledEvent("test", { hello: 1 }, false);
+        const eventItem: EventQueueItem = {
+          eventName: "change_delete_speed",
+          eventArgs: { speed: "natural" },
+        };
+        instance.addReverseCalledEvent(eventItem, false);
         expect(instance.addEventToStateProperty).toHaveBeenCalledTimes(0);
       });
     });
 
     describe("addEventToStateProperty", () => {
       it("should append event item correctly", () => {
-        const event = {
-          eventName: "test",
-          eventArgs: { hello: 1 },
+        const eventItem: EventQueueItem = {
+          eventName: "change_delete_speed",
+          eventArgs: { speed: "natural" },
         };
 
-        instance.state.eventQueue = [{ eventName: "1" }];
-        instance.addEventToStateProperty(
-          event.eventName,
-          "eventQueue",
-          event.eventArgs,
-          false
-        );
-        expect(instance.state.eventQueue[1]).toEqual(event);
+        instance.state.eventQueue = [
+          { eventName: "remove_character", eventArgs: {} },
+        ];
+        instance.addEventToStateProperty(eventItem, "eventQueue", false);
+        expect(instance.state.eventQueue[1]).toEqual(eventItem);
       });
 
       it("should prepend event item correctly", () => {
-        const event = {
-          eventName: "test",
-          eventArgs: { hello: 1 },
+        const eventItem: EventQueueItem = {
+          eventName: "change_delete_speed",
+          eventArgs: { speed: "natural" },
         };
 
-        instance.state.eventQueue = [{ eventName: "1" }];
-        instance.addEventToStateProperty(
-          event.eventName,
-          "eventQueue",
-          event.eventArgs,
-          true
-        );
-        expect(instance.state.eventQueue[0]).toEqual(event);
+        instance.state.eventQueue = [
+          { eventName: "remove_character", eventArgs: {} },
+        ];
+        instance.addEventToStateProperty(eventItem, "eventQueue", true);
+        expect(instance.state.eventQueue[0]).toEqual(eventItem);
       });
     });
 
     describe("runEventLoop", () => {
-      const events = [
-        { eventName: EVENT_NAMES.CHANGE_DELAY, eventArgs: { delay: 5000 } },
+      const events: EventQueueItem[] = [
+        { eventName: "change_delay", eventArgs: { delay: 5000 } },
       ];
 
       beforeEach(() => {
@@ -574,7 +592,7 @@ describe("Typewriter", () => {
 
         it("should use correct natural delay speed when removing character", () => {
           instance.state.eventQueue = [
-            { eventName: EVENT_NAMES.REMOVE_CHARACTER },
+            { eventName: "remove_character", eventArgs: {} },
           ];
           instance.options.deleteSpeed = "natural";
           instance.runEventLoop();
@@ -587,7 +605,7 @@ describe("Typewriter", () => {
 
         it("should use correct delay speed when removing character", () => {
           instance.state.eventQueue = [
-            { eventName: EVENT_NAMES.REMOVE_CHARACTER },
+            { eventName: "remove_character", eventArgs: {} },
           ];
           instance.options.deleteSpeed = 25;
           instance.runEventLoop();
@@ -605,12 +623,16 @@ describe("Typewriter", () => {
           });
         });
 
-        it(`should add called event to state if event is not ${EVENT_NAMES.REMOVE_ALL} or ${EVENT_NAMES.REMOVE_CHARACTER} when loop option is true`, () => {
-          const event = {
-            eventName: EVENT_NAMES.TYPE_CHARACTER,
+        it(`should add called event to state if event is not ${"remove_all"} or ${"remove_character"} when loop option is true`, () => {
+          const event: EventQueueItem = {
+            eventName: "type_character",
             eventArgs: {
               character: "t",
               node: null,
+              stringPart: "t",
+              characterIndex: 0,
+              stringIndex: 0,
+              htmlTextInfo: null,
             },
           };
           instance.options.loop = true;
@@ -619,11 +641,11 @@ describe("Typewriter", () => {
           expect(instance.state.calledEvents[0]).toEqual(event);
         });
 
-        it(`should not add called event to state if event is ${EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE} when loop option is true`, () => {
-          const event = {
-            eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
+        it(`should not add called event to state if event is ${"remove_last_visible_node"} when loop option is true`, () => {
+          const event: EventQueueItem = {
+            eventName: "remove_last_visible_node",
             eventArgs: {
-              speed: 100,
+              removingCharacterNode: true,
             },
           };
           instance.options.loop = true;
@@ -633,9 +655,9 @@ describe("Typewriter", () => {
         });
 
         it(`should not add called event to state if eventArgs has temp value when loop option is true`, () => {
-          const event = {
-            eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
-            eventArgs: { temp: true },
+          const event: EventQueueItem = {
+            eventName: "change_delete_speed",
+            eventArgs: { speed: null, temp: true },
           };
           instance.options.loop = true;
           instance.state.eventQueue = [event];
@@ -651,14 +673,18 @@ describe("Typewriter", () => {
           expect(instance.state.lastFrameTime).toEqual(currentTime + 2000);
         });
 
-        describe(`${EVENT_NAMES.TYPE_CHARACTER}`, () => {
+        describe(`${"type_character"}`, () => {
           beforeEach(() => {
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.TYPE_CHARACTER,
+                eventName: "type_character",
                 eventArgs: {
                   character: "t",
                   node: null,
+                  stringPart: "t",
+                  characterIndex: 0,
+                  stringIndex: 0,
+                  htmlTextInfo: null,
                 },
               },
             ];
@@ -671,53 +697,54 @@ describe("Typewriter", () => {
             expect(mock).toHaveBeenCalledTimes(1);
             expect(mock.mock.calls[0][0].textContent).toEqual("t");
             expect(instance.state.visibleNodes).toEqual([
-              {
+              expect.objectContaining({
                 type: VISIBLE_NODE_TYPES.TEXT_NODE,
                 node: mock.mock.calls[0][0],
                 character: "t",
-              },
+              }),
             ]);
           });
 
           it("should append child to node if provided", () => {
             const node = { appendChild: jest.fn() };
+            // @ts-expect-error - ignoring this for now
             instance.state.eventQueue[0].eventArgs.node = node;
             instance.runEventLoop();
             expect(node.appendChild).toHaveBeenCalledTimes(1);
             expect(node.appendChild.mock.calls[0][0].textContent).toEqual("t");
             expect(instance.state.visibleNodes).toEqual([
-              {
+              expect.objectContaining({
                 type: VISIBLE_NODE_TYPES.TEXT_NODE,
                 node: node.appendChild.mock.calls[0][0],
                 character: "t",
-              },
+              }),
             ]);
           });
         });
 
-        describe(`${EVENT_NAMES.REMOVE_CHARACTER}`, () => {
-          it(`should prepend ${EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE} to event queue`, () => {
+        describe(`${"remove_character"}`, () => {
+          it(`should prepend ${"remove_last_visible_node"} to event queue`, () => {
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.REMOVE_CHARACTER,
+                eventName: "remove_character",
                 eventArgs: {},
               },
             ];
             instance.runEventLoop();
             expect(instance.state.eventQueue).toEqual([
               {
-                eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
+                eventName: "remove_last_visible_node",
                 eventArgs: { removingCharacterNode: true },
               },
             ]);
           });
         });
 
-        describe(`${EVENT_NAMES.PAUSE_FOR}`, () => {
+        describe(`${"pause_for"}`, () => {
           it("should change pauseUntil state based on event args", () => {
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.PAUSE_FOR,
+                eventName: "pause_for",
                 eventArgs: { ms: 1000 },
               },
             ];
@@ -726,12 +753,12 @@ describe("Typewriter", () => {
           });
         });
 
-        describe(`${EVENT_NAMES.CALL_FUNCTION}`, () => {
+        describe(`${"call_function"}`, () => {
           it("should call callback function with object containing elements in state", () => {
             const cb = jest.fn();
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.CALL_FUNCTION,
+                eventName: "call_function",
                 eventArgs: {
                   cb,
                 },
@@ -745,15 +772,16 @@ describe("Typewriter", () => {
           });
         });
 
-        describe(`${EVENT_NAMES.ADD_HTML_TAG_ELEMENT}`, () => {
+        describe(`${"add_html_tag_element"}`, () => {
           it("should append node to the wrapepr element", () => {
             const node = document.createElement("div");
             instance.state.elements.wrapper.appendChild = jest.fn();
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.ADD_HTML_TAG_ELEMENT,
+                eventName: "add_html_tag_element",
                 eventArgs: {
                   node,
+                  parentNode: null,
                 },
               },
             ];
@@ -780,7 +808,7 @@ describe("Typewriter", () => {
             parentNode.appendChild = jest.fn();
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.ADD_HTML_TAG_ELEMENT,
+                eventName: "add_html_tag_element",
                 eventArgs: {
                   node,
                   parentNode,
@@ -800,14 +828,14 @@ describe("Typewriter", () => {
           });
         });
 
-        describe(`${EVENT_NAMES.REMOVE_ALL}`, () => {
+        describe(`${"remove_all"}`, () => {
           beforeEach(() => {
             instance.state.visibleNodes = [
               { type: VISIBLE_NODE_TYPES.HTML_TAG },
             ];
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.REMOVE_ALL,
+                eventName: "remove_all",
                 eventArgs: {
                   speed: null,
                 },
@@ -822,13 +850,14 @@ describe("Typewriter", () => {
 
           it("should correctly push remove last node events with speed change when provided", () => {
             instance.options.deleteSpeed = 10;
+            // @ts-expect-error -- ignoring this type error for now
             instance.state.eventQueue[0].eventArgs.speed = 100;
             instance.runEventLoop();
             expect(instance.state.eventQueue).toMatchSnapshot();
           });
         });
 
-        describe(`${EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE}`, () => {
+        describe(`${"remove_last_visible_node"}`, () => {
           let node: Node | undefined | null;
 
           beforeEach(() => {
@@ -837,7 +866,7 @@ describe("Typewriter", () => {
             } as unknown as Node;
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
+                eventName: "remove_last_visible_node",
                 eventArgs: {
                   removingCharacterNode: true,
                 },
@@ -863,17 +892,17 @@ describe("Typewriter", () => {
             expect(node!.parentNode!.removeChild).toHaveBeenCalledTimes(1);
             expect(node!.parentNode!.removeChild).toHaveBeenCalledWith(node);
             expect(instance.state.visibleNodes).toEqual([]);
-            expect(instance.state.eventQueue[0].eventName).toEqual(
-              EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE
+            expect(instance.state.eventQueue[0]?.eventName).toEqual(
+              "remove_last_visible_node"
             );
           });
         });
 
-        describe(`${EVENT_NAMES.CHANGE_DELETE_SPEED}`, () => {
+        describe(`${"change_delete_speed"}`, () => {
           it("should set options delete speed correctly", () => {
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
+                eventName: "change_delete_speed",
                 eventArgs: {
                   speed: 6000,
                 },
@@ -884,11 +913,11 @@ describe("Typewriter", () => {
           });
         });
 
-        describe(`${EVENT_NAMES.CHANGE_DELAY}`, () => {
+        describe(`${"change_delay"}`, () => {
           it("should set options delay correctly", () => {
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.CHANGE_DELAY,
+                eventName: "change_delay",
                 eventArgs: {
                   delay: 6000,
                 },
@@ -899,12 +928,12 @@ describe("Typewriter", () => {
           });
         });
 
-        describe(`${EVENT_NAMES.CHANGE_CURSOR}`, () => {
+        describe(`${"change_cursor"}`, () => {
           it("should set options and inner html of cursor element correctly", () => {
             instance.state.elements.cursor = document.createElement("div");
             instance.state.eventQueue = [
               {
-                eventName: EVENT_NAMES.CHANGE_CURSOR,
+                eventName: "change_cursor",
                 eventArgs: {
                   cursor: "$$$$",
                 },

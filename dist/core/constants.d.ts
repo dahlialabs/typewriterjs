@@ -1,17 +1,3 @@
-export declare const EVENT_NAMES: {
-    TYPE_CHARACTER: string;
-    REMOVE_CHARACTER: string;
-    REMOVE_ALL: string;
-    REMOVE_LAST_VISIBLE_NODE: string;
-    PAUSE_FOR: string;
-    CALL_FUNCTION: string;
-    ADD_HTML_TAG_ELEMENT: string;
-    REMOVE_HTML_TAG_ELEMENT: string;
-    CHANGE_DELETE_SPEED: string;
-    CHANGE_DELAY: string;
-    CHANGE_CURSOR: string;
-    PASTE_STRING: string;
-};
 export declare const VISIBLE_NODE_TYPES: {
     HTML_TAG: string;
     TEXT_NODE: string;

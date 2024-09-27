@@ -1,5 +1,5 @@
 import { doesStringContainHTMLTag, getDOMElementFromString, getRandomInteger, addStyles, } from "../utils";
-import { EVENT_NAMES, VISIBLE_NODE_TYPES, STYLES } from "./constants";
+import { VISIBLE_NODE_TYPES, STYLES } from "./constants";
 const DEFAULT_OPTIONS = {
     strings: [],
     cursor: "|",
@@ -65,8 +65,16 @@ class Typewriter {
     }
     init() {
         this.setupWrapperElement();
-        this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor: this.options.cursor }, true);
-        this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, null, true);
+        this.addEventToQueue({
+            eventName: "change_cursor",
+            eventArgs: { cursor: this.options.cursor || null },
+        }, true);
+        this.addEventToQueue({
+            eventName: "remove_all",
+            eventArgs: {
+                speed: null,
+            },
+        }, true);
         if (!___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
             addStyles(STYLES);
             ___TYPEWRITER_JS_STYLES_ADDED___ = true;
@@ -130,7 +138,7 @@ class Typewriter {
      * @author Tameem Safi <tamem@safi.me.uk>
      */
     pauseFor = (ms = 0) => {
-        this.addEventToQueue(EVENT_NAMES.PAUSE_FOR, { ms });
+        this.addEventToQueue({ eventName: "pause_for", eventArgs: { ms } });
         return this;
     };
     /**
@@ -192,10 +200,13 @@ class Typewriter {
             return this.typeOutHTMLString(string, stringIndex, node, true);
         }
         if (string) {
-            this.addEventToQueue(EVENT_NAMES.PASTE_STRING, {
-                character: string,
-                node,
-                htmlTextInfo,
+            this.addEventToQueue({
+                eventName: "paste_string",
+                eventArgs: {
+                    character: string,
+                    node,
+                    htmlTextInfo,
+                },
             });
         }
         return this;
@@ -230,9 +241,12 @@ class Typewriter {
                     // Reset innerText of HTML element
                     node.innerHTML = "";
                     // Add event queue item to insert HTML tag before typing characters
-                    this.addEventToQueue(EVENT_NAMES.ADD_HTML_TAG_ELEMENT, {
-                        node,
-                        parentNode,
+                    this.addEventToQueue({
+                        eventName: "add_html_tag_element",
+                        eventArgs: {
+                            node,
+                            parentNode,
+                        },
                     });
                     pasteEffect
                         ? this.pasteString(nodeText, stringIndex, node)
@@ -265,7 +279,10 @@ class Typewriter {
      * @author Tameem Safi <tamem@safi.me.uk>
      */
     deleteAll = (speed = "natural") => {
-        this.addEventToQueue(EVENT_NAMES.REMOVE_ALL, { speed });
+        this.addEventToQueue({
+            eventName: "remove_all",
+            eventArgs: { speed },
+        });
         return this;
     };
     /**
@@ -280,7 +297,11 @@ class Typewriter {
         if (!speed) {
             throw new Error("Must provide new delete speed");
         }
-        this.addEventToQueue(EVENT_NAMES.CHANGE_DELETE_SPEED, { speed });
+        this.addEventToQueue({
+            eventName: "change_delete_speed",
+            // @todo check if temp should be required here
+            eventArgs: { speed },
+        });
         return this;
     };
     /**
@@ -295,7 +316,10 @@ class Typewriter {
         if (!delay) {
             throw new Error("Must provide new delay");
         }
-        this.addEventToQueue(EVENT_NAMES.CHANGE_DELAY, { delay });
+        this.addEventToQueue({
+            eventName: "change_delay",
+            eventArgs: { delay },
+        });
         return this;
     };
     /**
@@ -310,7 +334,10 @@ class Typewriter {
         if (!cursor) {
             throw new Error("Must provide new cursor");
         }
-        this.addEventToQueue(EVENT_NAMES.CHANGE_CURSOR, { cursor });
+        this.addEventToQueue({
+            eventName: "change_cursor",
+            eventArgs: { cursor },
+        });
         return this;
     };
     /**
@@ -326,7 +353,10 @@ class Typewriter {
             throw new Error("Must provide amount of characters to delete");
         }
         for (let i = 0; i < amount; i++) {
-            this.addEventToQueue(EVENT_NAMES.REMOVE_CHARACTER);
+            this.addEventToQueue({
+                eventName: "remove_character",
+                eventArgs: {},
+            });
         }
         return this;
     };
@@ -343,7 +373,10 @@ class Typewriter {
         if (!cb || typeof cb !== "function") {
             throw new Error("Callback must be a function");
         }
-        this.addEventToQueue(EVENT_NAMES.CALL_FUNCTION, { cb, thisArg });
+        this.addEventToQueue({
+            eventName: "call_function",
+            eventArgs: { cb, thisArg },
+        });
         return this;
     };
     /**
@@ -362,13 +395,16 @@ class Typewriter {
             throw new Error("Characters must be an array");
         }
         characters.forEach((character, i) => {
-            this.addEventToQueue(EVENT_NAMES.TYPE_CHARACTER, {
-                character,
-                characterIndex: i,
-                node,
-                stringPart,
-                stringIndex,
-                htmlTextInfo,
+            this.addEventToQueue({
+                eventName: "type_character",
+                eventArgs: {
+                    character,
+                    characterIndex: i,
+                    node,
+                    stringPart,
+                    stringIndex,
+                    htmlTextInfo,
+                },
             });
         });
         return this;
@@ -386,56 +422,53 @@ class Typewriter {
             throw new Error("Characters must be an array");
         }
         characters.forEach(() => {
-            this.addEventToQueue(EVENT_NAMES.REMOVE_CHARACTER);
+            this.addEventToQueue({
+                eventName: "remove_character",
+                eventArgs: {},
+            });
         });
         return this;
     };
     /**
      * Add an event to the event queue
      *
-     * @param eventName Name of the event
+     * @param eventItem Event queue item
      * @param eventArgs Arguments to pass to event callback
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
      *
      * @author Tameem Safi <tamem@safi.me.uk>
      */
-    addEventToQueue = (eventName, eventArgs, prepend = false) => {
-        return this.addEventToStateProperty(eventName, "eventQueue", eventArgs, prepend);
+    addEventToQueue = (eventItem, prepend = false) => {
+        return this.addEventToStateProperty(eventItem, "eventQueue", prepend);
     };
     /**
      * Add an event to reverse called events used for looping
      *
-     * @param eventName Name of the event
-     * @param eventArgs Arguments to pass to event callback
+     * @param eventItem Event queue item
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
      *
      * @author Tameem Safi <tamem@safi.me.uk>
      */
-    addReverseCalledEvent = (eventName, eventArgs, prepend = false) => {
+    addReverseCalledEvent = (eventItem, prepend = false) => {
         const { loop } = this.options;
         if (!loop) {
             return this;
         }
-        return this.addEventToStateProperty(eventName, "reverseCalledEvents", eventArgs, prepend);
+        return this.addEventToStateProperty(eventItem, "reverseCalledEvents", prepend);
     };
     /**
      * Add an event to correct state property
      *
-     * @param eventName Name of the event
+     * @param eventItem Event queue item
      * @param property  Property name of state object
-     * @param eventArgs Arguments to pass to event callback
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
      *
      * @author Tameem Safi <tamem@safi.me.uk>
      */
-    addEventToStateProperty = (eventName, property, eventArgs, prepend = false) => {
-        const eventItem = {
-            eventName,
-            eventArgs: eventArgs || {},
-        };
+    addEventToStateProperty = (eventItem, property, prepend = false) => {
         if (prepend) {
             // @ts-ignore - fix the typing here
             this.state[property] = [eventItem, ...this.state[property]];
@@ -467,7 +500,7 @@ class Typewriter {
             this.state.eventQueue = [...this.state.calledEvents];
             if (this.options.loopDelay && hasntRunYet) {
                 this.state.eventQueue.unshift({
-                    eventName: EVENT_NAMES.PAUSE_FOR,
+                    eventName: "pause_for",
                     eventArgs: { ms: this.options.loopDelay },
                 });
             }
@@ -500,8 +533,8 @@ class Typewriter {
         }
         // Check if frame should run or be
         // skipped based on fps interval
-        if (currentEvent.eventName === EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE ||
-            currentEvent.eventName === EVENT_NAMES.REMOVE_CHARACTER) {
+        if (currentEvent.eventName === "remove_last_visible_node" ||
+            currentEvent.eventName === "remove_character") {
             delay = getDeleteDelay(this.options, currentEvent.eventArgs);
         }
         else {
@@ -515,9 +548,17 @@ class Typewriter {
         this.logInDevMode({ currentEvent, state: this.state, delay });
         // Run item from event loop
         switch (eventName) {
-            case EVENT_NAMES.PASTE_STRING:
-            case EVENT_NAMES.TYPE_CHARACTER: {
-                const { character, node, stringPart, characterIndex, stringIndex, htmlTextInfo, } = eventArgs;
+            case "paste_string":
+            case "type_character": {
+                const { character, node, htmlTextInfo } = eventArgs;
+                let stringPart = "";
+                let characterIndex = 0;
+                let stringIndex = 0;
+                if (eventName === "type_character") {
+                    stringPart = eventArgs.stringPart;
+                    characterIndex = eventArgs.characterIndex;
+                    stringIndex = eventArgs.stringIndex;
+                }
                 const textNode = document.createTextNode(character);
                 let textNodeToUse = textNode;
                 if (this.options.onCreateTextNode &&
@@ -553,26 +594,26 @@ class Typewriter {
                 });
                 break;
             }
-            case EVENT_NAMES.REMOVE_CHARACTER: {
+            case "remove_character": {
                 eventQueue.unshift({
-                    eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
+                    eventName: "remove_last_visible_node",
                     eventArgs: { removingCharacterNode: true },
                 });
                 break;
             }
-            case EVENT_NAMES.PAUSE_FOR: {
+            case "pause_for": {
                 const { ms } = currentEvent.eventArgs;
-                this.state.pauseUntil = Date.now() + parseInt(ms);
+                this.state.pauseUntil = Date.now() + ms;
                 break;
             }
-            case EVENT_NAMES.CALL_FUNCTION: {
+            case "call_function": {
                 const { cb, thisArg } = currentEvent.eventArgs;
                 cb.call(thisArg, {
                     elements: this.state.elements,
                 });
                 break;
             }
-            case EVENT_NAMES.ADD_HTML_TAG_ELEMENT: {
+            case "add_html_tag_element": {
                 const { node, parentNode } = currentEvent.eventArgs;
                 if (!parentNode) {
                     this.state.elements.wrapper.appendChild(node);
@@ -590,34 +631,36 @@ class Typewriter {
                 ];
                 break;
             }
-            case EVENT_NAMES.REMOVE_ALL: {
+            case "remove_all": {
                 const { visibleNodes } = this.state;
                 const { speed } = eventArgs;
                 const removeAllEventItems = [];
                 // Change speed before deleting
                 if (speed) {
                     removeAllEventItems.push({
-                        eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
+                        eventName: "change_delete_speed",
                         eventArgs: { speed, temp: true },
                     });
                 }
                 for (let i = 0, length = visibleNodes.length; i < length; i++) {
                     removeAllEventItems.push({
-                        eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
+                        eventName: "remove_last_visible_node",
                         eventArgs: { removingCharacterNode: false },
                     });
                 }
                 // Change speed back to normal after deleteing
                 if (speed) {
                     removeAllEventItems.push({
-                        eventName: EVENT_NAMES.CHANGE_DELETE_SPEED,
-                        eventArgs: { speed: this.options.deleteSpeed, temp: true },
+                        eventName: "change_delete_speed",
+                        // @todo check this in case we need to update the speed param
+                        // for this event to be non-nullable
+                        eventArgs: { speed: this.options.deleteSpeed || null, temp: true },
                     });
                 }
                 eventQueue.unshift(...removeAllEventItems);
                 break;
             }
-            case EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE: {
+            case "remove_last_visible_node": {
                 const { removingCharacterNode } = currentEvent.eventArgs;
                 const lastVisibleNode = this.state.visibleNodes.pop();
                 if (lastVisibleNode) {
@@ -632,7 +675,8 @@ class Typewriter {
                     // Remove extra node as current deleted one is just an empty wrapper node
                     if (type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
                         eventQueue.unshift({
-                            eventName: EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE,
+                            eventName: "remove_last_visible_node",
+                            // @todo check if this should set removingCharacterNode to false
                             eventArgs: {},
                         });
                     }
@@ -646,17 +690,18 @@ class Typewriter {
                 }
                 break;
             }
-            case EVENT_NAMES.CHANGE_DELETE_SPEED: {
-                this.options.deleteSpeed = currentEvent.eventArgs.speed;
+            case "change_delete_speed": {
+                this.options.deleteSpeed = currentEvent.eventArgs.speed || undefined;
                 break;
             }
-            case EVENT_NAMES.CHANGE_DELAY: {
+            case "change_delay": {
                 this.options.delay = currentEvent.eventArgs.delay;
                 break;
             }
-            case EVENT_NAMES.CHANGE_CURSOR: {
-                this.options.cursor = currentEvent.eventArgs.cursor;
-                this.state.elements.cursor.innerHTML = currentEvent.eventArgs.cursor;
+            case "change_cursor": {
+                this.options.cursor = currentEvent.eventArgs.cursor || undefined;
+                this.state.elements.cursor.innerHTML =
+                    currentEvent.eventArgs.cursor || "";
                 break;
             }
             default: {
@@ -665,8 +710,8 @@ class Typewriter {
         }
         // Add que item to called queue if we are looping
         if (this.options.loop) {
-            if (currentEvent.eventName !== EVENT_NAMES.REMOVE_LAST_VISIBLE_NODE &&
-                !(currentEvent.eventArgs && currentEvent.eventArgs.temp)) {
+            if (currentEvent.eventName !== "remove_last_visible_node" &&
+                !(currentEvent.eventArgs && "temp" in currentEvent.eventArgs)) {
                 this.state.calledEvents = [...this.state.calledEvents, currentEvent];
             }
         }

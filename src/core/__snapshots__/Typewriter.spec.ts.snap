@@ -3,54 +3,56 @@
 exports[`Typewriter methods deleteChars should add event items for amount of characters 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
 ]
 `;
@@ -58,14 +60,16 @@ exports[`Typewriter methods deleteChars should add event items for amount of cha
 exports[`Typewriter methods pasteString should correctly add event items to queue if string does not contain html 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -73,7 +77,7 @@ exports[`Typewriter methods pasteString should correctly add event items to queu
       "htmlTextInfo": null,
       "node": null,
     },
-    "eventName": "PASTE_STRING",
+    "eventName": "paste_string",
   },
 ]
 `;
@@ -81,34 +85,36 @@ exports[`Typewriter methods pasteString should correctly add event items to queu
 exports[`Typewriter methods removeCharacters should add event items for amount of characters 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
   {
     "eventArgs": {},
-    "eventName": "REMOVE_CHARACTER",
+    "eventName": "remove_character",
   },
 ]
 `;
@@ -119,43 +125,43 @@ exports[`Typewriter methods runEventLoop should reset queue correctly if event q
     "eventArgs": {
       "delay": 5000,
     },
-    "eventName": "CHANGE_DELAY",
+    "eventName": "change_delay",
   },
 ]
 `;
 
-exports[`Typewriter methods runEventLoop valid delta REMOVE_ALL should correctly push remove last node events with speed change when provided 1`] = `
+exports[`Typewriter methods runEventLoop valid delta remove_all should correctly push remove last node events with speed change when provided 1`] = `
 [
   {
     "eventArgs": {
       "speed": 100,
       "temp": true,
     },
-    "eventName": "CHANGE_DELETE_SPEED",
+    "eventName": "change_delete_speed",
   },
   {
     "eventArgs": {
       "removingCharacterNode": false,
     },
-    "eventName": "REMOVE_LAST_VISIBLE_NODE",
+    "eventName": "remove_last_visible_node",
   },
   {
     "eventArgs": {
       "speed": 10,
       "temp": true,
     },
-    "eventName": "CHANGE_DELETE_SPEED",
+    "eventName": "change_delete_speed",
   },
 ]
 `;
 
-exports[`Typewriter methods runEventLoop valid delta REMOVE_ALL should correctly push remove last node events without speed change 1`] = `
+exports[`Typewriter methods runEventLoop valid delta remove_all should correctly push remove last node events without speed change 1`] = `
 [
   {
     "eventArgs": {
       "removingCharacterNode": false,
     },
-    "eventName": "REMOVE_LAST_VISIBLE_NODE",
+    "eventName": "remove_last_visible_node",
   },
 ]
 `;
@@ -163,14 +169,16 @@ exports[`Typewriter methods runEventLoop valid delta REMOVE_ALL should correctly
 exports[`Typewriter methods typeCharacters should add event items for amount of characters 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -181,7 +189,7 @@ exports[`Typewriter methods typeCharacters should add event items for amount of 
       "stringIndex": 0,
       "stringPart": "hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -192,7 +200,7 @@ exports[`Typewriter methods typeCharacters should add event items for amount of 
       "stringIndex": 0,
       "stringPart": "hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -203,7 +211,7 @@ exports[`Typewriter methods typeCharacters should add event items for amount of 
       "stringIndex": 0,
       "stringPart": "hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -214,7 +222,7 @@ exports[`Typewriter methods typeCharacters should add event items for amount of 
       "stringIndex": 0,
       "stringPart": "hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -225,7 +233,7 @@ exports[`Typewriter methods typeCharacters should add event items for amount of 
       "stringIndex": 0,
       "stringPart": "hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
 ]
 `;
@@ -233,14 +241,16 @@ exports[`Typewriter methods typeCharacters should add event items for amount of 
 exports[`Typewriter methods typeOutAllStrings should correctly add event item to queue when options.strings is a string 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -251,7 +261,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -262,7 +272,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -273,7 +283,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -284,7 +294,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -295,7 +305,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -306,7 +316,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -317,7 +327,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -328,7 +338,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -339,7 +349,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -350,7 +360,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -361,7 +371,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -372,13 +382,13 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
 ]
 `;
@@ -386,14 +396,16 @@ exports[`Typewriter methods typeOutAllStrings should correctly add event item to
 exports[`Typewriter methods typeOutAllStrings should correctly add multiple event items to queue when options.strings is an array 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -404,7 +416,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -415,7 +427,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -426,7 +438,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -437,7 +449,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -448,19 +460,19 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
   {
     "eventArgs": {
       "speed": "natural",
     },
-    "eventName": "REMOVE_ALL",
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
@@ -471,7 +483,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -482,7 +494,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -493,7 +505,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -504,7 +516,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -515,7 +527,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -526,7 +538,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -537,7 +549,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -548,19 +560,19 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 1,
       "stringPart": "world!, ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
   {
     "eventArgs": {
       "speed": "natural",
     },
-    "eventName": "REMOVE_ALL",
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
@@ -571,7 +583,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 2,
       "stringPart": "How",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -582,7 +594,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 2,
       "stringPart": "How",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -593,19 +605,19 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 2,
       "stringPart": "How",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
   {
     "eventArgs": {
       "speed": "natural",
     },
-    "eventName": "REMOVE_ALL",
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
@@ -616,7 +628,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 3,
       "stringPart": "are",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -627,7 +639,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 3,
       "stringPart": "are",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -638,19 +650,19 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 3,
       "stringPart": "are",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
   {
     "eventArgs": {
       "speed": "natural",
     },
-    "eventName": "REMOVE_ALL",
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
@@ -661,7 +673,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 4,
       "stringPart": "you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -672,7 +684,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 4,
       "stringPart": "you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -683,7 +695,7 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 4,
       "stringPart": "you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -694,19 +706,19 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
       "stringIndex": 4,
       "stringPart": "you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
   {
     "eventArgs": {
       "speed": "natural",
     },
-    "eventName": "REMOVE_ALL",
+    "eventName": "remove_all",
   },
 ]
 `;
@@ -714,14 +726,16 @@ exports[`Typewriter methods typeOutAllStrings should correctly add multiple even
 exports[`Typewriter methods typeOutHTMLString should correctly add event item when string contains only string 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -739,7 +753,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event item wh
       "stringIndex": 0,
       "stringPart": "test",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -757,7 +771,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event item wh
       "stringIndex": 0,
       "stringPart": "test",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -775,7 +789,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event item wh
       "stringIndex": 0,
       "stringPart": "test",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -793,7 +807,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event item wh
       "stringIndex": 0,
       "stringPart": "test",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
 ]
 `;
@@ -801,21 +815,23 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event item wh
 exports[`Typewriter methods typeOutHTMLString should correctly add event items for html wrapper and all string characters 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
       "node": <strong />,
       "parentNode": null,
     },
-    "eventName": "ADD_HTML_TAG_ELEMENT",
+    "eventName": "add_html_tag_element",
   },
   {
     "eventArgs": {
@@ -838,7 +854,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -861,7 +877,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -884,7 +900,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -907,7 +923,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -930,7 +946,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -953,7 +969,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -976,7 +992,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -999,7 +1015,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1022,7 +1038,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1045,7 +1061,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1068,7 +1084,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "hello world",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1091,14 +1107,14 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": " ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "node": <div />,
       "parentNode": null,
     },
-    "eventName": "ADD_HTML_TAG_ELEMENT",
+    "eventName": "add_html_tag_element",
   },
   {
     "eventArgs": {
@@ -1121,7 +1137,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1144,7 +1160,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1167,7 +1183,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1190,7 +1206,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1213,7 +1229,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1236,7 +1252,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1259,7 +1275,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1282,7 +1298,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1305,7 +1321,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1328,7 +1344,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1351,7 +1367,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1374,7 +1390,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "how are you?",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1397,14 +1413,14 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": " ",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "node": <p />,
       "parentNode": null,
     },
-    "eventName": "ADD_HTML_TAG_ELEMENT",
+    "eventName": "add_html_tag_element",
   },
   {
     "eventArgs": {
@@ -1427,7 +1443,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "Google",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1450,7 +1466,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "Google",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1473,7 +1489,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "Google",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1496,7 +1512,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "Google",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1519,7 +1535,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "Google",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1542,7 +1558,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "Google",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1565,7 +1581,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "!!!!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1588,7 +1604,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "!!!!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1611,7 +1627,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "!!!!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1634,7 +1650,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "!!!!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
 ]
 `;
@@ -1642,14 +1658,16 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
 exports[`Typewriter methods typeOutHTMLString should correctly add event items for nested html and parent node 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -1660,7 +1678,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
         class="parent-node"
       />,
     },
-    "eventName": "ADD_HTML_TAG_ELEMENT",
+    "eventName": "add_html_tag_element",
   },
   {
     "eventArgs": {
@@ -1680,7 +1698,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "test!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1700,7 +1718,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "test!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1720,7 +1738,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "test!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1740,7 +1758,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "test!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1760,7 +1778,7 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
       "stringIndex": 0,
       "stringPart": "test!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
 ]
 `;
@@ -1768,14 +1786,16 @@ exports[`Typewriter methods typeOutHTMLString should correctly add event items f
 exports[`Typewriter methods typeString should correctly add event items to queue if string does not contain html 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -1786,7 +1806,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1797,7 +1817,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1808,7 +1828,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1819,7 +1839,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1830,7 +1850,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1841,7 +1861,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1852,7 +1872,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1863,7 +1883,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1874,7 +1894,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1885,7 +1905,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1896,7 +1916,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -1907,7 +1927,7 @@ exports[`Typewriter methods typeString should correctly add event items to queue
       "stringIndex": 0,
       "stringPart": "Hello world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
 ]
 `;
@@ -1942,14 +1962,16 @@ exports[`Typewriter shoud setup correctly with default settings 1`] = `
   "eventLoopPaused": false,
   "eventQueue": [
     {
-      "eventArgs": {},
-      "eventName": "REMOVE_ALL",
+      "eventArgs": {
+        "speed": null,
+      },
+      "eventName": "remove_all",
     },
     {
       "eventArgs": {
         "cursor": "|",
       },
-      "eventName": "CHANGE_CURSOR",
+      "eventName": "change_cursor",
     },
   ],
   "initialOptions": {
@@ -2027,14 +2049,16 @@ exports[`Typewriter should correctly setup container element with selector 1`] =
 exports[`Typewriter should correctly setup queue if autostart is set to true 1`] = `
 [
   {
-    "eventArgs": {},
-    "eventName": "REMOVE_ALL",
+    "eventArgs": {
+      "speed": null,
+    },
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
       "cursor": "|",
     },
-    "eventName": "CHANGE_CURSOR",
+    "eventName": "change_cursor",
   },
   {
     "eventArgs": {
@@ -2045,7 +2069,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2056,7 +2080,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2067,7 +2091,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2078,7 +2102,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2089,19 +2113,19 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 0,
       "stringPart": "Hello",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
   {
     "eventArgs": {
       "speed": "natural",
     },
-    "eventName": "REMOVE_ALL",
+    "eventName": "remove_all",
   },
   {
     "eventArgs": {
@@ -2112,7 +2136,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 1,
       "stringPart": "world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2123,7 +2147,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 1,
       "stringPart": "world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2134,7 +2158,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 1,
       "stringPart": "world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2145,7 +2169,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 1,
       "stringPart": "world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2156,7 +2180,7 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 1,
       "stringPart": "world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
@@ -2167,19 +2191,19 @@ exports[`Typewriter should correctly setup queue if autostart is set to true 1`]
       "stringIndex": 1,
       "stringPart": "world!",
     },
-    "eventName": "TYPE_CHARACTER",
+    "eventName": "type_character",
   },
   {
     "eventArgs": {
       "ms": 1500,
     },
-    "eventName": "PAUSE_FOR",
+    "eventName": "pause_for",
   },
   {
     "eventArgs": {
       "speed": "natural",
     },
-    "eventName": "REMOVE_ALL",
+    "eventName": "remove_all",
   },
 ]
 `;
