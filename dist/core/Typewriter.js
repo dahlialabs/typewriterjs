@@ -1,5 +1,8 @@
-import { doesStringContainHTMLTag, getDOMElementFromString, getRandomInteger, addStyles, } from "../utils";
-import { STYLES } from "./constants";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resetStylesAdded = void 0;
+const utils_1 = require("../utils");
+const constants_1 = require("./constants");
 const DEFAULT_OPTIONS = {
     strings: [],
     cursor: "|",
@@ -76,7 +79,7 @@ class Typewriter {
             },
         }, true);
         if (!___TYPEWRITER_JS_STYLES_ADDED___ && !this.options.skipAddStyles) {
-            addStyles(STYLES);
+            (0, utils_1.addStyles)(constants_1.STYLES);
             ___TYPEWRITER_JS_STYLES_ADDED___ = true;
         }
         if (this.options.autoStart === true && this.options.strings) {
@@ -162,7 +165,7 @@ class Typewriter {
      * @return {Typewriter}
      */
     typeString = (string, { node = null, stringIndex = 0, htmlTextInfo = null, pasteEffect = false, } = {}) => {
-        if (doesStringContainHTMLTag(string)) {
+        if ((0, utils_1.doesStringContainHTMLTag)(string)) {
             return this.typeOutHTMLString(string, stringIndex, node, pasteEffect);
         }
         if (string) {
@@ -183,9 +186,9 @@ class Typewriter {
      */
     pasteString = (string, stringIndex = 0, node = null) => {
         if (string) {
-            const containsHTML = doesStringContainHTMLTag(string);
+            const containsHTML = (0, utils_1.doesStringContainHTMLTag)(string);
             const childNodes = containsHTML
-                ? Array.from(getDOMElementFromString(string))
+                ? Array.from((0, utils_1.getDOMElementFromString)(string))
                 : [];
             const allTextParts = childNodes.map((node) => node.textContent || "");
             this.addEventToQueue({
@@ -221,7 +224,7 @@ class Typewriter {
             this.pasteString(string, stringIndex, parentNode);
             return this;
         }
-        const childNodes = getDOMElementFromString(string);
+        const childNodes = (0, utils_1.getDOMElementFromString)(string);
         const allTextParts = Array.from(childNodes).map((node) => node.textContent || "");
         if (childNodes.length > 0) {
             for (let i = 0; i < childNodes.length; i++) {
@@ -758,7 +761,7 @@ function getDelay(options, eventItem) {
     if (typeof options.delay === "function") {
         return options.delay(eventItem);
     }
-    return getRandomInteger(120, 160);
+    return (0, utils_1.getRandomInteger)(120, 160);
 }
 function getDeleteDelay(options, eventItem) {
     if (typeof options.deleteSpeed === "number") {
@@ -767,11 +770,11 @@ function getDeleteDelay(options, eventItem) {
     if (typeof options.deleteSpeed === "function") {
         return options.deleteSpeed(eventItem);
     }
-    return getRandomInteger(40, 80);
+    return (0, utils_1.getRandomInteger)(40, 80);
 }
 const resetStylesAdded = () => {
     ___TYPEWRITER_JS_STYLES_ADDED___ = false;
 };
-export default Typewriter;
-export { resetStylesAdded };
+exports.resetStylesAdded = resetStylesAdded;
+exports.default = Typewriter;
 //# sourceMappingURL=Typewriter.js.map

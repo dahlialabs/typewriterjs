@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Return a random integer between min/max values
  *
@@ -8,5 +10,5 @@
 const getRandomInteger = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
-export default getRandomInteger;
+exports.default = getRandomInteger;
 //# sourceMappingURL=get-random-integer.js.map

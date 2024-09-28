@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Check if a string contains a HTML tag or not
  *
@@ -9,5 +11,5 @@ const doesStringContainHTMLTag = (string) => {
     const regexp = new RegExp(/<[a-z][\s\S]*>/i);
     return regexp.test(string);
 };
-export default doesStringContainHTMLTag;
+exports.default = doesStringContainHTMLTag;
 //# sourceMappingURL=does-string-contain-html-tag.js.map

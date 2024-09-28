@@ -1,7 +1,12 @@
-import getDOMElementFromString from "./get-dom-element-from-string";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const get_dom_element_from_string_1 = __importDefault(require("./get-dom-element-from-string"));
 describe("getDOMElementFromString", () => {
     it("should return correct dom elements from string", () => {
-        const nodes = getDOMElementFromString("<strong>test</strong> Hello <i>world</i>");
+        const nodes = (0, get_dom_element_from_string_1.default)("<strong>test</strong> Hello <i>world</i>");
         expect(nodes).toHaveLength(3);
         expect(nodes[0].nodeName).toBe("STRONG");
         expect(nodes[0].textContent).toEqual("test");

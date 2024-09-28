@@ -1,5 +1,30 @@
-import Typewriter, { resetStylesAdded, } from "./Typewriter";
-import { STYLES } from "./constants";
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Typewriter_1 = __importStar(require("./Typewriter"));
+const constants_1 = require("./constants");
 const raf = jest.fn((fn) => {
     fn();
     return 1;
@@ -11,7 +36,7 @@ describe("Typewriter", () => {
     let wrapperElement;
     let styleNode;
     beforeEach(() => {
-        resetStylesAdded();
+        (0, Typewriter_1.resetStylesAdded)();
         wrapperElement = document.createElement("div");
         wrapperElement.id = "test";
         document.body.appendChild(wrapperElement);
@@ -27,24 +52,24 @@ describe("Typewriter", () => {
         jest.resetAllMocks();
     });
     it("should have added styles correctly", () => {
-        new Typewriter(wrapperElement);
+        new Typewriter_1.default(wrapperElement);
         expect(document.head.appendChild).toHaveBeenCalledTimes(1);
-        expect(styleNode.innerHTML).toEqual(STYLES);
+        expect(styleNode.innerHTML).toEqual(constants_1.STYLES);
     });
     it("should have added styles only once", () => {
-        new Typewriter(wrapperElement);
-        new Typewriter(wrapperElement);
-        new Typewriter(wrapperElement);
+        new Typewriter_1.default(wrapperElement);
+        new Typewriter_1.default(wrapperElement);
+        new Typewriter_1.default(wrapperElement);
         expect(document.head.appendChild).toHaveBeenCalledTimes(1);
-        expect(styleNode.innerHTML).toEqual(STYLES);
+        expect(styleNode.innerHTML).toEqual(constants_1.STYLES);
     });
     it("should not add styles when skip option is passed", () => {
-        new Typewriter(wrapperElement, { skipAddStyles: true });
+        new Typewriter_1.default(wrapperElement, { skipAddStyles: true });
         expect(document.head.appendChild).toHaveBeenCalledTimes(0);
         expect(styleNode).toEqual(undefined);
     });
     it("shoud setup correctly with default settings", () => {
-        const instance = new Typewriter("#test");
+        const instance = new Typewriter_1.default("#test");
         expect(instance.state).toMatchSnapshot();
         expect(instance.options).toMatchSnapshot();
     });
@@ -65,24 +90,24 @@ describe("Typewriter", () => {
             onCreateTextNode: jest.fn(),
             onRemoveNode: jest.fn(),
         };
-        const instance = new Typewriter("#test", options);
+        const instance = new Typewriter_1.default("#test", options);
         expect(instance.options).toEqual(options);
     });
     it("should throw error if container wih selector is not found", () => {
         expect(() => {
-            new Typewriter(".hello");
+            new Typewriter_1.default(".hello");
         }).toThrow("Could not find container element");
     });
     it("should correctly setup container element with selector", () => {
-        const instance = new Typewriter("#test");
+        const instance = new Typewriter_1.default("#test");
         expect(instance.state.elements.container).toMatchSnapshot();
     });
     it("should correctly setup container element with element", () => {
-        const instance = new Typewriter(wrapperElement);
+        const instance = new Typewriter_1.default(wrapperElement);
         expect(instance.state.elements.container).toMatchSnapshot();
     });
     it("should correctly setup queue if autostart is set to true", () => {
-        const instance = new Typewriter(wrapperElement, {
+        const instance = new Typewriter_1.default(wrapperElement, {
             strings: ["Hello", "world!"],
             autoStart: true,
         });
@@ -93,7 +118,7 @@ describe("Typewriter", () => {
         let instanceInitialOptions;
         beforeEach(() => {
             window.cancelAnimationFrame = cancelRaf;
-            instance = new Typewriter(wrapperElement);
+            instance = new Typewriter_1.default(wrapperElement);
             instanceInitialOptions = { ...instance.options };
         });
         it("start should correctly run event loop", () => {

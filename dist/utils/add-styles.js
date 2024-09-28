@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Add styles to document head
  *
@@ -9,5 +11,5 @@ const addStyles = (styles) => {
     styleBlock.appendChild(document.createTextNode(styles));
     document.head.appendChild(styleBlock);
 };
-export default addStyles;
+exports.default = addStyles;
 //# sourceMappingURL=add-styles.js.map

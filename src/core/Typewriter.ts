@@ -168,7 +168,7 @@ export type TypewriterOptions =
       onPaste?: (param: OnPasteArgs) => void;
 
       /**
-       * Callback function when a character is typed
+       * Callback function when a character is deleted
        */
       onDelete?: (param: OnDeleteArgs) => void;
     } & (

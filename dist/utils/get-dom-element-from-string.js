@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Get the DOM element from a string
  * - Create temporary div element
@@ -13,5 +15,5 @@ const getDOMElementFromString = (string) => {
     div.innerHTML = string;
     return div.childNodes;
 };
-export default getDOMElementFromString;
+exports.default = getDOMElementFromString;
 //# sourceMappingURL=get-dom-element-from-string.js.map
