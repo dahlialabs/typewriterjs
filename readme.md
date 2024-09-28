@@ -53,8 +53,8 @@ new Typewriter('#typewriter', {
 | --- | --- | --- | --- |
 | strings | String or Array | null | Strings to type out when using ``autoStart`` option |
 | cursor | String | Pipe character | String value to use as the cursor. |
-| delay | 'natural' or Number | 'natural' | The delay between each key when typing. |
-| deleteSpeed | 'natural' or Number | 'natural' | The delay between deleting each character. |
+| delay | 'natural' or Number or Function | 'natural' | The delay between each key when typing. |
+| deleteSpeed | 'natural' or Number or Function | 'natural' | The delay between deleting each character. |
 | loop | Boolean | false | Whether to keep looping or not. |
 | autoStart | Boolean | false | Whether to autostart typing strings or not. You are required to provide ``strings`` option. |
 | pauseFor | Number | 1500 | The pause duration after a string is typed when using autostart mode |
@@ -64,7 +64,11 @@ new Typewriter('#typewriter', {
 | cursorClassName | String | 'Typewriter__cursor' | Class name for the cursor element. |
 | stringSplitter | Function | String splitter function, can be used to [split emoji's](https://codesandbox.io/s/typewriter-effect-emojis-pgz6e) |
 | onCreateTextNode | Function | null | Callback function to replace the internal method which creates a text node for the character before adding it to the DOM. If you return null, then it will not add anything to the DOM and so it is up to you to handle it. |
-| onRemoveNode | Function | null | Callback function when a node is about to be removed. First param will be an object `{ node: HTMLNode, charater: string }` |
+| onAddNode | Function | undefined | Callback function when a node is added to the DOM |
+| onWillRemoveNode | Function | undefined | Callback function when a node is about to be removed. First param will be an object `{ node: HTMLNode | null, charater?: string }` |
+| onType | Function | undefined | Callback function for when each string part is typed |
+| onPaste | Function | undefined | Callback function for when a string is pasted |
+| onDelete | Function | undefined | Callback function for when a string part is deleted |
 
 ## Methods
 
@@ -77,11 +81,11 @@ All methods can be chained together.
 | pauseFor | ``ms`` Time to pause for in milliseconds | Pause for milliseconds |
 | typeString | ``string`` String to type out, it can contain HTML tags | Type out a string using the typewriter effect. |
 | pasteString | ``string`` String to paste out, it can contain HTML tags | Paste out a string. |
-| deleteAll | ``speed`` Speed to delete all visibles nodes, can be number or 'natural' | Delete everything that is visible inside of the typewriter wrapper element. |
+| deleteAll | ``speed`` Speed to delete all visible nodes, can be number or 'natural' or Function | Delete everything that is visible inside of the typewriter wrapper element. |
 | deleteChars | ``amount`` Number of characters | Delete and amount of characters, starting at the end of the visible string. |
 | callFunction | ``cb`` Callback, ``thisArg`` this Object to bind to the callback function | Call a callback function. The first parameter to the callback ``elements`` which contains all DOM nodes used in the typewriter effect. |
-| changeDeleteSpeed | ``speed`` Number or 'natural' | The speed at which to delete the characters, lower number is faster. |
-| changeDelay | ``delay`` Number or 'natural' | Change the delay when typing out each character |
+| changeDeleteSpeed | ``speed`` Number or 'natural' or Function | The speed at which to delete the characters, lower number is faster. |
+| changeDelay | ``delay`` Number or 'natural' or Function | Change the delay when typing out each character |
 
 ## Examples
 
