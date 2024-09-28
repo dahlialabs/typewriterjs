@@ -11,7 +11,7 @@ type OnRemoveArgs = {
   character?: string;
 };
 
-type Speed = "natural" | number | ((eventArgs?: any) => number);
+type Speed = "natural" | number | ((event: EventQueueItem) => number);
 
 type OnTypeArgs = {
   typewriter: Typewriter;
@@ -146,7 +146,7 @@ type TypewriterOptions = {
   onDelete?: (param: OnDeleteArgs) => void;
 };
 
-export type EventQueueItem =
+type EventQueueItem =
   | {
       eventName: "type_character";
       eventArgs: {
@@ -919,9 +919,9 @@ class Typewriter {
       currentEvent.eventName === "remove_last_visible_node" ||
       currentEvent.eventName === "remove_character"
     ) {
-      delay = getDeleteDelay(this.options, currentEvent.eventArgs);
+      delay = getDeleteDelay(this.options, currentEvent);
     } else {
-      delay = getDelay(this.options, currentEvent.eventArgs);
+      delay = getDelay(this.options, currentEvent);
     }
 
     if (delta <= delay) {
@@ -1173,25 +1173,25 @@ class Typewriter {
   }
 }
 
-function getDelay(options: TypewriterOptions, eventArgs?: any) {
+function getDelay(options: TypewriterOptions, eventItem: EventQueueItem) {
   if (typeof options.delay === "number") {
     return options.delay;
   }
 
   if (typeof options.delay === "function") {
-    return options.delay(eventArgs);
+    return options.delay(eventItem);
   }
 
   return getRandomInteger(120, 160);
 }
 
-function getDeleteDelay(options: TypewriterOptions, eventArgs?: any) {
+function getDeleteDelay(options: TypewriterOptions, eventItem: EventQueueItem) {
   if (typeof options.deleteSpeed === "number") {
     return options.deleteSpeed;
   }
 
   if (typeof options.deleteSpeed === "function") {
-    return options.deleteSpeed(eventArgs);
+    return options.deleteSpeed(eventItem);
   }
 
   return getRandomInteger(40, 80);
@@ -1203,4 +1203,4 @@ const resetStylesAdded = () => {
 
 export default Typewriter;
 export { resetStylesAdded };
-export type { TypewriterOptions };
+export type { TypewriterOptions, EventQueueItem };

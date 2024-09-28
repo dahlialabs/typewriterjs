@@ -2,7 +2,7 @@ type OnRemoveArgs = {
     node?: Node | null;
     character?: string;
 };
-type Speed = "natural" | number | ((eventArgs?: any) => number);
+type Speed = "natural" | number | ((event: EventQueueItem) => number);
 type OnTypeArgs = {
     typewriter: Typewriter;
     character: string;
@@ -130,7 +130,7 @@ type TypewriterOptions = {
      */
     onDelete?: (param: OnDeleteArgs) => void;
 };
-export type EventQueueItem = {
+type EventQueueItem = {
     eventName: "type_character";
     eventArgs: {
         character: string;
@@ -439,4 +439,4 @@ declare class Typewriter {
 declare const resetStylesAdded: () => void;
 export default Typewriter;
 export { resetStylesAdded };
-export type { TypewriterOptions };
+export type { TypewriterOptions, EventQueueItem };

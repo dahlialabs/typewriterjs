@@ -535,10 +535,10 @@ class Typewriter {
         // skipped based on fps interval
         if (currentEvent.eventName === "remove_last_visible_node" ||
             currentEvent.eventName === "remove_character") {
-            delay = getDeleteDelay(this.options, currentEvent.eventArgs);
+            delay = getDeleteDelay(this.options, currentEvent);
         }
         else {
-            delay = getDelay(this.options, currentEvent.eventArgs);
+            delay = getDelay(this.options, currentEvent);
         }
         if (delta <= delay) {
             return;
@@ -738,21 +738,21 @@ class Typewriter {
         };
     }
 }
-function getDelay(options, eventArgs) {
+function getDelay(options, eventItem) {
     if (typeof options.delay === "number") {
         return options.delay;
     }
     if (typeof options.delay === "function") {
-        return options.delay(eventArgs);
+        return options.delay(eventItem);
     }
     return getRandomInteger(120, 160);
 }
-function getDeleteDelay(options, eventArgs) {
+function getDeleteDelay(options, eventItem) {
     if (typeof options.deleteSpeed === "number") {
         return options.deleteSpeed;
     }
     if (typeof options.deleteSpeed === "function") {
-        return options.deleteSpeed(eventArgs);
+        return options.deleteSpeed(eventItem);
     }
     return getRandomInteger(40, 80);
 }
