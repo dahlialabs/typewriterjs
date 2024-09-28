@@ -1,9 +1,12 @@
-type OnRemoveArgs = {
+export type OnAddNodeArgs = {
+    node?: HTMLElement | null;
+};
+export type OnWillRemoveNodeArgs = {
     node?: Node | null;
     character?: string;
 };
-type Speed = "natural" | number | ((event: EventQueueItem) => number);
-type OnTypeArgs = {
+export type Speed = "natural" | number | ((event: EventQueueItem) => number);
+export type OnTypeArgs = {
     typewriter: Typewriter;
     character: string;
     characterIndex: number;
@@ -11,29 +14,41 @@ type OnTypeArgs = {
     currentString: string;
     htmlTextInfo: HTMLTextInfo | null;
 };
-type OnDeleteArgs = {
+export type OnPasteArgs = {
     typewriter: Typewriter;
+    stringIndex: number;
+    currentString: string;
+    htmlTextInfo: HTMLTextInfo | null;
+    /**
+     * Array of child nodes that were added to the DOM if pasting HTML content
+     */
+    childNodes: ChildNode[];
+};
+export type OnDeleteArgs = {
+    typewriter: Typewriter;
+} & ({} | {
     character: string;
     characterIndex: number;
     stringIndex: number;
     currentString: string;
+});
+export type TypeStringOptions = {
+    node?: HTMLElement | null;
+    stringIndex?: number;
+    htmlTextInfo?: HTMLTextInfo | null;
+    pasteEffect?: boolean;
 };
 /**
- * Information related to the provided HTML text
+ * Information related to the provided HTML text. This will be null in most
+ * cases if the passed string does not contain HTML tags.
  */
-type HTMLTextInfo = {
+export type HTMLTextInfo = {
     text: string;
     partIndex: number;
     parts: string[];
     originalString: string;
 };
-type TypewriterOptions = {
-    /**
-     * Strings to type out when using autoStart option
-     *
-     * @default null
-     */
-    strings?: string | string[];
+export type TypewriterOptions = ({
     /**
      * String value to use as the cursor.
      *
@@ -111,26 +126,54 @@ type TypewriterOptions = {
      * it to the DOM. If you return null, then it will
      * not add anything to the DOM and so it
      * is up to you to handle it
-     *
-     * @default null
      */
     onCreateTextNode?: (character: string, textNode: Text) => Text | null;
     /**
-     * Callback function when a node is about to be removed
-     *
-     * @default null
+     * Callback function when a node is added to the DOM
      */
-    onRemoveNode?: (param: OnRemoveArgs) => void;
+    onAddNode?: (param: OnAddNodeArgs) => void;
+    /**
+     * Callback function when a node is about to be removed
+     */
+    onWillRemoveNode?: (param: OnWillRemoveNodeArgs) => void;
     /**
      * Callback function when a character is typed
      */
     onType?: (param: OnTypeArgs) => void;
     /**
+     * Callback function when a string is pasted
+     */
+    onPaste?: (param: OnPasteArgs) => void;
+    /**
      * Callback function when a character is typed
      */
     onDelete?: (param: OnDeleteArgs) => void;
-};
-type EventQueueItem = {
+} & ({
+    /**
+     * Whether to autostart typing strings or not. You are required to provide
+     * strings option.
+     *
+     * @default false
+     */
+    autoStart?: false;
+    /**
+     * Single or multiple strings to type out when using autoStart option
+     */
+    strings?: string | string[];
+} | {
+    /**
+     * Single or multiple strings to type out when using autoStart option
+     */
+    strings: string | string[];
+    /**
+     * Whether to autostart typing strings or not. You are required to provide
+     * strings option.
+     *
+     * @default false
+     */
+    autoStart: true;
+}));
+export type EventQueueItem = {
     eventName: "type_character";
     eventArgs: {
         character: string;
@@ -143,9 +186,11 @@ type EventQueueItem = {
 } | {
     eventName: "paste_string";
     eventArgs: {
-        character: string;
+        pastedString: string;
         node: HTMLElement | null;
         htmlTextInfo: HTMLTextInfo | null;
+        stringIndex: number;
+        childNodes: ChildNode[];
     };
 } | {
     eventName: "remove_character";
@@ -201,16 +246,20 @@ type EventQueueItem = {
         cursor: string | null;
     };
 };
-type VisibleNode = {
-    type: string;
-    character?: string;
-    characterIndex?: number;
-    stringIndex?: number;
-    currentString?: string;
+export type VisibleNode = {
+    type: "text_node";
+    character: string;
+    characterIndex: number;
+    stringIndex: number;
+    currentString: string;
     node?: Node | null;
     parentNode?: HTMLElement;
+} | {
+    type: "html_tag";
+    node?: Node | null;
+    parentNode: HTMLElement;
 };
-type TypewriterState = {
+export type TypewriterState = {
     cursorAnimation: null;
     lastFrameTime: number | null;
     pauseUntil: number | null;
@@ -240,8 +289,6 @@ declare class Typewriter {
     /**
      * Replace all child nodes of provided element with
      * state wrapper element used for typewriter effect
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     setupWrapperElement: () => void;
     /**
@@ -250,14 +297,10 @@ declare class Typewriter {
     start: () => this;
     /**
      * Pause the event loop
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     pause: () => this;
     /**
      * Destroy current running instance
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     stop: () => this;
     /**
@@ -265,8 +308,6 @@ declare class Typewriter {
      *
      * @param ms Time in ms to pause for
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     pauseFor: (ms?: number) => this;
     /**
@@ -274,8 +315,6 @@ declare class Typewriter {
      * out all strings provided
      *
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     typeOutAllStrings: () => this;
     /**
@@ -285,24 +324,16 @@ declare class Typewriter {
      * @param node Node to add character inside of
      * @param stringIndex Index of string in strings array
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
-    typeString: (string: string, { node, stringIndex, htmlTextInfo, }?: {
-        node?: HTMLElement | null;
-        stringIndex?: number;
-        htmlTextInfo?: HTMLTextInfo | null;
-    }) => this;
+    typeString: (string: string, { node, stringIndex, htmlTextInfo, pasteEffect, }?: TypeStringOptions) => this;
     /**
      * Adds entire strings to event queue for paste effect
      *
      * @param string String to paste
-     * @param node Node to add string inside of
+     * @param node Node to add string or nodes inside of
      * @return {Typewriter}
-     *
-     * @author Luiz Felicio <unifelicio@gmail.com>
      */
-    pasteString: (string: string, stringIndex?: number, node?: HTMLElement | null, htmlTextInfo?: HTMLTextInfo | null) => this;
+    pasteString: (string: string, stringIndex?: number, node?: HTMLElement | null) => this;
     /**
      * Type out a string which is wrapper around HTML tag
      *
@@ -310,16 +341,12 @@ declare class Typewriter {
      * @param parentNode Node to add inner nodes to
      * @param pasteEffect
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     typeOutHTMLString: (string: string, stringIndex?: number, parentNode?: HTMLElement | null, pasteEffect?: boolean) => this;
     /**
      * Add delete all characters to event queue
      *
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     deleteAll: (speed?: TypewriterOptions["deleteSpeed"]) => this;
     /**
@@ -327,8 +354,6 @@ declare class Typewriter {
      *
      * @param speed Speed to use for deleting characters
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     changeDeleteSpeed: (speed: Speed) => this;
     /**
@@ -336,8 +361,6 @@ declare class Typewriter {
      *
      * @param delay Delay when typing out characters
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     changeDelay: (delay: Speed) => this;
     /**
@@ -345,8 +368,6 @@ declare class Typewriter {
      *
      * @param character/string to represent as cursor
      * @return {Typewriter}
-     *
-     * @author Y.Paing <ye@y3p.io>
      */
     changeCursor: (cursor: string) => this;
     /**
@@ -354,8 +375,6 @@ declare class Typewriter {
      *
      * @param amount Number of characters to remove
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     deleteChars: (amount: number) => this;
     /**
@@ -364,8 +383,6 @@ declare class Typewriter {
      * @param cb Callback function to call
      * @param thisArg thisArg to use when calling function
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     callFunction: (cb: () => void, thisArg?: any) => this;
     /**
@@ -376,8 +393,6 @@ declare class Typewriter {
      * @param stringIndex index of all strings to be typed out
      * @param node Node to add character inside of
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     typeCharacters: (characters: string[], stringPart: string, stringIndex?: number, node?: HTMLElement | null, htmlTextInfo?: HTMLTextInfo | null) => this;
     /**
@@ -385,8 +400,6 @@ declare class Typewriter {
      *
      * @param characters Array of characters
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     removeCharacters: (characters: string[]) => this;
     /**
@@ -396,8 +409,6 @@ declare class Typewriter {
      * @param eventArgs Arguments to pass to event callback
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     addEventToQueue: (eventItem: EventQueueItem, prepend?: boolean) => this;
     /**
@@ -406,8 +417,6 @@ declare class Typewriter {
      * @param eventItem Event queue item
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     addReverseCalledEvent: (eventItem: EventQueueItem, prepend?: boolean) => this;
     /**
@@ -417,26 +426,26 @@ declare class Typewriter {
      * @param property  Property name of state object
      * @param prepend   Prepend to begining of event queue
      * @return {Typewriter}
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     addEventToStateProperty: (eventItem: EventQueueItem, property: keyof TypewriterState, prepend?: boolean) => this;
     /**
      * Run the event loop and do anything inside of the queue
-     *
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     runEventLoop: () => void;
     /**
      * Log a message in development mode
      *
      * @param {Mixed} message Message or item to console.log
-     * @author Tameem Safi <tamem@safi.me.uk>
      */
     logInDevMode(message: any): void;
+    /**
+     * Update the current options of the typewriter instance
+     *
+     * @param options Typewriter options
+     */
     update(options: Partial<TypewriterOptions>): void;
 }
 declare const resetStylesAdded: () => void;
 export default Typewriter;
 export { resetStylesAdded };
-export type { TypewriterOptions, EventQueueItem };
+export type TypewriterInstance = Typewriter;

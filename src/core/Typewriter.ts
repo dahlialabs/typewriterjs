@@ -1290,3 +1290,4 @@ const resetStylesAdded = () => {
 
 export default Typewriter;
 export { resetStylesAdded };
+export type TypewriterInstance = Typewriter;
