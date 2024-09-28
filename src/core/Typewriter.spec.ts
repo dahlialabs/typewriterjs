@@ -3,7 +3,7 @@ import Typewriter, {
   type TypewriterOptions,
   resetStylesAdded,
 } from "./Typewriter";
-import { VISIBLE_NODE_TYPES, STYLES } from "./constants";
+import { STYLES } from "./constants";
 
 const raf = jest.fn((fn) => {
   fn();
@@ -185,18 +185,20 @@ describe("Typewriter", () => {
       it("should correctly call `typeOutHTMLString` passing `pasteString` true if string contains html", () => {
         instance.typeOutHTMLString = jest.fn();
         instance.pasteString("Hello <strong>world</strong>!");
-        expect(instance.typeOutHTMLString).toHaveBeenCalledTimes(1);
-        expect(instance.typeOutHTMLString).toHaveBeenCalledWith(
-          "Hello <strong>world</strong>!",
-          0,
-          null,
-          true
-        );
-        expect(instance.state.eventQueue.length).toEqual(2);
+        expect(instance.state.eventQueue.length).toEqual(3);
         expect(instance.state.eventQueue[0]!.eventName).toEqual("remove_all");
         expect(instance.state.eventQueue[1]!.eventName).toEqual(
           "change_cursor"
         );
+
+        const event = instance.state.eventQueue[2]!;
+
+        if (event.eventName !== "paste_string") {
+          throw new Error("Event name is not correct");
+        }
+
+        expect(event.eventName).toEqual("paste_string");
+        expect(event.eventArgs.htmlTextInfo).not.toBeNull();
       });
 
       it("should correctly add event items to queue if string does not contain html", () => {
@@ -698,7 +700,7 @@ describe("Typewriter", () => {
             expect(mock.mock.calls[0][0].textContent).toEqual("t");
             expect(instance.state.visibleNodes).toEqual([
               expect.objectContaining({
-                type: VISIBLE_NODE_TYPES.TEXT_NODE,
+                type: "text_node",
                 node: mock.mock.calls[0][0],
                 character: "t",
               }),
@@ -714,7 +716,7 @@ describe("Typewriter", () => {
             expect(node.appendChild.mock.calls[0][0].textContent).toEqual("t");
             expect(instance.state.visibleNodes).toEqual([
               expect.objectContaining({
-                type: VISIBLE_NODE_TYPES.TEXT_NODE,
+                type: "text_node",
                 node: node.appendChild.mock.calls[0][0],
                 character: "t",
               }),
@@ -794,7 +796,7 @@ describe("Typewriter", () => {
             ).toHaveBeenCalledWith(node);
             expect(instance.state.visibleNodes).toEqual([
               {
-                type: VISIBLE_NODE_TYPES.HTML_TAG,
+                type: "html_tag",
                 node,
                 parentNode: instance.state.elements.wrapper,
               },
@@ -820,7 +822,7 @@ describe("Typewriter", () => {
             expect(parentNode.appendChild).toHaveBeenCalledWith(node);
             expect(instance.state.visibleNodes).toEqual([
               {
-                type: VISIBLE_NODE_TYPES.HTML_TAG,
+                type: "html_tag",
                 node,
                 parentNode,
               },
@@ -831,7 +833,11 @@ describe("Typewriter", () => {
         describe(`${"remove_all"}`, () => {
           beforeEach(() => {
             instance.state.visibleNodes = [
-              { type: VISIBLE_NODE_TYPES.HTML_TAG },
+              {
+                type: "html_tag",
+                node: null,
+                parentNode: document.createElement("div"),
+              },
             ];
             instance.state.eventQueue = [
               {
@@ -876,7 +882,14 @@ describe("Typewriter", () => {
 
           it("should remove visible node correctly", () => {
             instance.state.visibleNodes = [
-              { type: VISIBLE_NODE_TYPES.TEXT_NODE, node },
+              {
+                type: "text_node",
+                node,
+                character: "a",
+                characterIndex: 0,
+                stringIndex: 0,
+                currentString: "a string",
+              },
             ];
             instance.runEventLoop();
             expect(node!.parentNode!.removeChild).toHaveBeenCalledTimes(1);
@@ -886,7 +899,11 @@ describe("Typewriter", () => {
 
           it("should remove visible node correctly and add an extra remove event if type was html tag", () => {
             instance.state.visibleNodes = [
-              { type: VISIBLE_NODE_TYPES.HTML_TAG, node },
+              {
+                type: "html_tag",
+                node,
+                parentNode: document.createElement("div"),
+              },
             ];
             instance.runEventLoop();
             expect(node!.parentNode!.removeChild).toHaveBeenCalledTimes(1);

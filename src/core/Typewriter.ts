@@ -4,16 +4,20 @@ import {
   getRandomInteger,
   addStyles,
 } from "../utils";
-import { VISIBLE_NODE_TYPES, STYLES } from "./constants";
+import { STYLES } from "./constants";
 
-type OnRemoveArgs = {
+export type OnAddNodeArgs = {
+  node?: HTMLElement | null;
+};
+
+export type OnWillRemoveNodeArgs = {
   node?: Node | null;
   character?: string;
 };
 
-type Speed = "natural" | number | ((event: EventQueueItem) => number);
+export type Speed = "natural" | number | ((event: EventQueueItem) => number);
 
-type OnTypeArgs = {
+export type OnTypeArgs = {
   typewriter: Typewriter;
   character: string;
   characterIndex: number;
@@ -22,131 +26,183 @@ type OnTypeArgs = {
   htmlTextInfo: HTMLTextInfo | null;
 };
 
-type OnDeleteArgs = {
+export type OnPasteArgs = {
   typewriter: Typewriter;
-  character: string;
-  characterIndex: number;
   stringIndex: number;
   currentString: string;
+  htmlTextInfo: HTMLTextInfo | null;
+  /**
+   * Array of child nodes that were added to the DOM if pasting HTML content
+   */
+  childNodes: ChildNode[];
+};
+
+export type OnDeleteArgs = {
+  typewriter: Typewriter;
+} & (
+  | {}
+  | {
+      character: string;
+      characterIndex: number;
+      stringIndex: number;
+      currentString: string;
+    }
+);
+
+export type TypeStringOptions = {
+  node?: HTMLElement | null;
+  stringIndex?: number;
+  htmlTextInfo?: HTMLTextInfo | null;
+  pasteEffect?: boolean;
 };
 
 /**
- * Information related to the provided HTML text
+ * Information related to the provided HTML text. This will be null in most
+ * cases if the passed string does not contain HTML tags.
  */
-type HTMLTextInfo = {
+export type HTMLTextInfo = {
   text: string;
   partIndex: number;
   parts: string[];
   originalString: string;
 };
 
-type TypewriterOptions = {
-  /**
-   * Strings to type out when using autoStart option
-   *
-   * @default null
-   */
-  strings?: string | string[];
-  /**
-   * String value to use as the cursor.
-   *
-   * @default Pipe character
-   */
-  cursor?: string;
-  /**
-   * The delay between each key when typing.
-   *
-   * @default "natural"
-   */
-  delay?: Speed;
-  /**
-   * The delay before deletion starts.
-   */
-  pauseFor?: number;
-  /**
-   * The delay between deleting each character.
-   *
-   * @default "natural"
-   */
-  deleteSpeed?: Speed;
-  /**
-   * Whether to keep looping or not.
-   *
-   * @default false
-   */
-  loop?: boolean;
-  /**
-   * Delay between loops
-   *
-   * @default 0
-   */
-  loopDelay?: number;
-  /**
-   * Whether to autostart typing strings or not. You are required to provide
-   * strings option.
-   *
-   * @default false
-   */
-  autoStart?: boolean;
-  /**
-   * Whether or not to display console logs.
-   *
-   * @default false
-   */
-  devMode?: boolean;
-  /**
-   * Skip adding default typewriter css styles.
-   *
-   * @default false
-   */
-  skipAddStyles?: boolean;
-  /**
-   * Class name for the wrapper element.
-   *
-   * @default "Typewriter__wrapper"
-   */
-  wrapperClassName?: string;
-  /**
-   * Class name for the cursor element.
-   *
-   * @default "Typewriter__cursor"
-   */
-  cursorClassName?: string;
-  /**
-   * String splitter function, can be used to split emoji's
-   *
-   * @default null
-   */
-  stringSplitter?: (text: string) => string[];
-  /**
-   * Callback function to replace the internal method which
-   * creates a text node for the character before adding
-   * it to the DOM. If you return null, then it will
-   * not add anything to the DOM and so it
-   * is up to you to handle it
-   *
-   * @default null
-   */
-  onCreateTextNode?: (character: string, textNode: Text) => Text | null;
-  /**
-   * Callback function when a node is about to be removed
-   *
-   * @default null
-   */
-  onRemoveNode?: (param: OnRemoveArgs) => void;
+export type TypewriterOptions =
+  | {
+      /**
+       * String value to use as the cursor.
+       *
+       * @default Pipe character
+       */
+      cursor?: string;
+      /**
+       * The delay between each key when typing.
+       *
+       * @default "natural"
+       */
+      delay?: Speed;
+      /**
+       * The delay before deletion starts.
+       */
+      pauseFor?: number;
+      /**
+       * The delay between deleting each character.
+       *
+       * @default "natural"
+       */
+      deleteSpeed?: Speed;
+      /**
+       * Whether to keep looping or not.
+       *
+       * @default false
+       */
+      loop?: boolean;
+      /**
+       * Delay between loops
+       *
+       * @default 0
+       */
+      loopDelay?: number;
+      /**
+       * Whether to autostart typing strings or not. You are required to provide
+       * strings option.
+       *
+       * @default false
+       */
+      autoStart?: boolean;
+      /**
+       * Whether or not to display console logs.
+       *
+       * @default false
+       */
+      devMode?: boolean;
+      /**
+       * Skip adding default typewriter css styles.
+       *
+       * @default false
+       */
+      skipAddStyles?: boolean;
+      /**
+       * Class name for the wrapper element.
+       *
+       * @default "Typewriter__wrapper"
+       */
+      wrapperClassName?: string;
+      /**
+       * Class name for the cursor element.
+       *
+       * @default "Typewriter__cursor"
+       */
+      cursorClassName?: string;
+      /**
+       * String splitter function, can be used to split emoji's
+       *
+       * @default null
+       */
+      stringSplitter?: (text: string) => string[];
+      /**
+       * Callback function to replace the internal method which
+       * creates a text node for the character before adding
+       * it to the DOM. If you return null, then it will
+       * not add anything to the DOM and so it
+       * is up to you to handle it
+       */
+      onCreateTextNode?: (character: string, textNode: Text) => Text | null;
+      /**
+       * Callback function when a node is added to the DOM
+       */
+      onAddNode?: (param: OnAddNodeArgs) => void;
+      /**
+       * Callback function when a node is about to be removed
+       */
+      onWillRemoveNode?: (param: OnWillRemoveNodeArgs) => void;
 
-  /**
-   * Callback function when a character is typed
-   */
-  onType?: (param: OnTypeArgs) => void;
+      /**
+       * Callback function when a character is typed
+       */
+      onType?: (param: OnTypeArgs) => void;
 
-  /**
-   * Callback function when a character is typed
-   */
-  onDelete?: (param: OnDeleteArgs) => void;
-};
+      /**
+       * Callback function when a string is pasted
+       */
+      onPaste?: (param: OnPasteArgs) => void;
 
-type EventQueueItem =
+      /**
+       * Callback function when a character is typed
+       */
+      onDelete?: (param: OnDeleteArgs) => void;
+    } & (
+      | {
+          /**
+           * Whether to autostart typing strings or not. You are required to provide
+           * strings option.
+           *
+           * @default false
+           */
+          autoStart?: false;
+
+          /**
+           * Single or multiple strings to type out when using autoStart option
+           */
+          strings?: string | string[];
+        }
+      | {
+          /**
+           * Single or multiple strings to type out when using autoStart option
+           */
+          strings: string | string[];
+
+          /**
+           * Whether to autostart typing strings or not. You are required to provide
+           * strings option.
+           *
+           * @default false
+           */
+          autoStart: true;
+        }
+    );
+
+export type EventQueueItem =
   | {
       eventName: "type_character";
       eventArgs: {
@@ -161,9 +217,11 @@ type EventQueueItem =
   | {
       eventName: "paste_string";
       eventArgs: {
-        character: string;
+        pastedString: string;
         node: HTMLElement | null;
         htmlTextInfo: HTMLTextInfo | null;
+        stringIndex: number;
+        childNodes: ChildNode[];
       };
     }
   | {
@@ -228,17 +286,23 @@ type EventQueueItem =
       };
     };
 
-type VisibleNode = {
-  type: string;
-  character?: string;
-  characterIndex?: number;
-  stringIndex?: number;
-  currentString?: string;
-  node?: Node | null;
-  parentNode?: HTMLElement;
-};
+export type VisibleNode =
+  | {
+      type: "text_node";
+      character: string;
+      characterIndex: number;
+      stringIndex: number;
+      currentString: string;
+      node?: Node | null;
+      parentNode?: HTMLElement;
+    }
+  | {
+      type: "html_tag";
+      node?: Node | null;
+      parentNode: HTMLElement;
+    };
 
-type TypewriterState = {
+export type TypewriterState = {
   cursorAnimation: null;
   lastFrameTime: number | null;
   pauseUntil: number | null;
@@ -270,7 +334,7 @@ const DEFAULT_OPTIONS: TypewriterOptions = {
   cursorClassName: "Typewriter__cursor",
   stringSplitter: undefined,
   onCreateTextNode: undefined,
-  onRemoveNode: undefined,
+  onWillRemoveNode: undefined,
 };
 
 let ___TYPEWRITER_JS_STYLES_ADDED___ = false;
@@ -361,8 +425,6 @@ class Typewriter {
   /**
    * Replace all child nodes of provided element with
    * state wrapper element used for typewriter effect
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   setupWrapperElement = () => {
     if (!this.state.elements.container) {
@@ -391,8 +453,6 @@ class Typewriter {
 
   /**
    * Pause the event loop
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   pause = () => {
     this.state.eventLoopPaused = true;
@@ -402,8 +462,6 @@ class Typewriter {
 
   /**
    * Destroy current running instance
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   stop = () => {
     if (this.state.eventLoop) {
@@ -419,8 +477,6 @@ class Typewriter {
    *
    * @param ms Time in ms to pause for
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   pauseFor = (ms: number = 0) => {
     this.addEventToQueue({ eventName: "pause_for", eventArgs: { ms } });
@@ -433,8 +489,6 @@ class Typewriter {
    * out all strings provided
    *
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutAllStrings = () => {
     if (typeof this.options.strings === "string") {
@@ -462,8 +516,6 @@ class Typewriter {
    * @param node Node to add character inside of
    * @param stringIndex Index of string in strings array
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeString = (
     string: string,
@@ -471,14 +523,11 @@ class Typewriter {
       node = null,
       stringIndex = 0,
       htmlTextInfo = null,
-    }: {
-      node?: HTMLElement | null;
-      stringIndex?: number;
-      htmlTextInfo?: HTMLTextInfo | null;
-    } = {}
+      pasteEffect = false,
+    }: TypeStringOptions = {}
   ) => {
     if (doesStringContainHTMLTag(string)) {
-      return this.typeOutHTMLString(string, stringIndex, node);
+      return this.typeOutHTMLString(string, stringIndex, node, pasteEffect);
     }
 
     if (string) {
@@ -497,28 +546,35 @@ class Typewriter {
    * Adds entire strings to event queue for paste effect
    *
    * @param string String to paste
-   * @param node Node to add string inside of
+   * @param node Node to add string or nodes inside of
    * @return {Typewriter}
-   *
-   * @author Luiz Felicio <unifelicio@gmail.com>
    */
   pasteString = (
     string: string,
     stringIndex: number = 0,
-    node: HTMLElement | null = null,
-    htmlTextInfo: HTMLTextInfo | null = null
+    node: HTMLElement | null = null
   ) => {
-    if (doesStringContainHTMLTag(string)) {
-      return this.typeOutHTMLString(string, stringIndex, node, true);
-    }
-
     if (string) {
+      const containsHTML = doesStringContainHTMLTag(string);
+      const childNodes = containsHTML
+        ? Array.from(getDOMElementFromString(string))
+        : [];
+      const allTextParts = childNodes.map((node) => node.textContent || "");
       this.addEventToQueue({
         eventName: "paste_string",
         eventArgs: {
-          character: string,
+          pastedString: string,
           node,
-          htmlTextInfo,
+          htmlTextInfo: containsHTML
+            ? {
+                text: allTextParts.join(""),
+                partIndex: 0,
+                parts: [string],
+                originalString: string,
+              }
+            : null,
+          stringIndex,
+          childNodes,
         },
       });
     }
@@ -533,8 +589,6 @@ class Typewriter {
    * @param parentNode Node to add inner nodes to
    * @param pasteEffect
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeOutHTMLString = (
     string: string,
@@ -542,12 +596,17 @@ class Typewriter {
     parentNode: HTMLElement | null = null,
     pasteEffect?: boolean
   ) => {
+    if (pasteEffect) {
+      this.pasteString(string, stringIndex, parentNode);
+      return this;
+    }
+
     const childNodes = getDOMElementFromString(string);
+    const allTextParts = Array.from(childNodes).map(
+      (node) => node.textContent || ""
+    );
 
     if (childNodes.length > 0) {
-      const allTextParts = Array.from(childNodes).map(
-        (node) => node.textContent || ""
-      );
       for (let i = 0; i < childNodes.length; i++) {
         const node = childNodes[i];
         if (!node) {
@@ -574,23 +633,17 @@ class Typewriter {
             },
           });
 
-          pasteEffect
-            ? this.pasteString(nodeText, stringIndex, node)
-            : this.typeString(nodeText, {
-                node,
-                stringIndex,
-                htmlTextInfo,
-              });
-        } else {
-          if (node.textContent) {
-            pasteEffect
-              ? this.pasteString(node.textContent, stringIndex, parentNode)
-              : this.typeString(node.textContent, {
-                  node: parentNode,
-                  stringIndex,
-                  htmlTextInfo,
-                });
-          }
+          this.typeString(nodeText, {
+            node,
+            stringIndex,
+            htmlTextInfo,
+          });
+        } else if (node.textContent) {
+          this.typeString(node.textContent, {
+            node: parentNode,
+            stringIndex,
+            htmlTextInfo,
+          });
         }
       }
     }
@@ -602,8 +655,6 @@ class Typewriter {
    * Add delete all characters to event queue
    *
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   deleteAll = (speed: TypewriterOptions["deleteSpeed"] = "natural") => {
     this.addEventToQueue({
@@ -618,8 +669,6 @@ class Typewriter {
    *
    * @param speed Speed to use for deleting characters
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDeleteSpeed = (speed: Speed) => {
     if (!speed) {
@@ -640,8 +689,6 @@ class Typewriter {
    *
    * @param delay Delay when typing out characters
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   changeDelay = (delay: Speed) => {
     if (!delay) {
@@ -661,8 +708,6 @@ class Typewriter {
    *
    * @param character/string to represent as cursor
    * @return {Typewriter}
-   *
-   * @author Y.Paing <ye@y3p.io>
    */
   changeCursor = (cursor: string) => {
     if (!cursor) {
@@ -682,8 +727,6 @@ class Typewriter {
    *
    * @param amount Number of characters to remove
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   deleteChars = (amount: number) => {
     if (!amount) {
@@ -706,8 +749,6 @@ class Typewriter {
    * @param cb Callback function to call
    * @param thisArg thisArg to use when calling function
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   callFunction = (cb: () => void, thisArg?: any) => {
     if (!cb || typeof cb !== "function") {
@@ -730,8 +771,6 @@ class Typewriter {
    * @param stringIndex index of all strings to be typed out
    * @param node Node to add character inside of
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   typeCharacters = (
     characters: string[],
@@ -766,8 +805,6 @@ class Typewriter {
    *
    * @param characters Array of characters
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   removeCharacters = (characters: string[]) => {
     if (!characters || !Array.isArray(characters)) {
@@ -791,8 +828,6 @@ class Typewriter {
    * @param eventArgs Arguments to pass to event callback
    * @param prepend   Prepend to begining of event queue
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   addEventToQueue = (eventItem: EventQueueItem, prepend = false) => {
     return this.addEventToStateProperty(eventItem, "eventQueue", prepend);
@@ -804,8 +839,6 @@ class Typewriter {
    * @param eventItem Event queue item
    * @param prepend   Prepend to begining of event queue
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   addReverseCalledEvent = (eventItem: EventQueueItem, prepend = false) => {
     const { loop } = this.options;
@@ -828,8 +861,6 @@ class Typewriter {
    * @param property  Property name of state object
    * @param prepend   Prepend to begining of event queue
    * @return {Typewriter}
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   addEventToStateProperty = (
     eventItem: EventQueueItem,
@@ -849,8 +880,6 @@ class Typewriter {
 
   /**
    * Run the event loop and do anything inside of the queue
-   *
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   runEventLoop = () => {
     const hasntRunYet = !this.state.lastFrameTime;
@@ -935,20 +964,69 @@ class Typewriter {
 
     // Run item from event loop
     switch (eventName) {
-      case "paste_string":
-      case "type_character": {
-        const { character, node, htmlTextInfo } = eventArgs;
-
-        let stringPart = "";
+      case "paste_string": {
+        const { pastedString, node, htmlTextInfo, stringIndex, childNodes } =
+          eventArgs;
+        const container = node || this.state.elements.wrapper;
         let characterIndex = 0;
-        let stringIndex = 0;
 
-        if (eventName === "type_character") {
-          stringPart = eventArgs.stringPart;
-          characterIndex = eventArgs.characterIndex;
-          stringIndex = eventArgs.stringIndex;
+        const textNode = document.createTextNode(pastedString);
+
+        let textNodeToUse: Text | null = textNode;
+
+        if (childNodes.length) {
+          const frag = document.createDocumentFragment();
+          childNodes.forEach((node) => {
+            frag.appendChild(node);
+            this.state.visibleNodes.push({
+              type: "html_tag",
+              node,
+              parentNode: container,
+            });
+          });
+          container.appendChild(frag);
+        } else {
+          if (typeof this.options.onCreateTextNode === "function") {
+            textNodeToUse = this.options.onCreateTextNode(
+              pastedString,
+              textNode
+            );
+          }
+
+          if (textNodeToUse) {
+            container.appendChild(textNodeToUse);
+          }
+
+          this.state.visibleNodes.push({
+            type: "text_node",
+            character: pastedString,
+            characterIndex,
+            currentString: pastedString,
+            stringIndex,
+            node: textNodeToUse,
+          });
         }
 
+        this.options.onPaste?.({
+          typewriter: this,
+          stringIndex,
+          currentString: pastedString,
+          htmlTextInfo,
+          childNodes,
+        });
+
+        break;
+      }
+      case "type_character": {
+        const {
+          character,
+          node,
+          htmlTextInfo,
+          stringPart,
+          characterIndex,
+          stringIndex,
+        } = eventArgs;
+        const container = node || this.state.elements.wrapper;
         const textNode = document.createTextNode(character);
 
         let textNodeToUse: Text | null = textNode;
@@ -961,17 +1039,13 @@ class Typewriter {
         }
 
         if (textNodeToUse) {
-          if (node) {
-            node.appendChild(textNodeToUse);
-          } else {
-            this.state.elements.wrapper.appendChild(textNodeToUse);
-          }
+          container.appendChild(textNodeToUse);
         }
 
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
-            type: VISIBLE_NODE_TYPES.TEXT_NODE,
+            type: "text_node",
             character,
             characterIndex,
             currentString: stringPart,
@@ -1025,10 +1099,14 @@ class Typewriter {
           parentNode.appendChild(node);
         }
 
+        this.options.onAddNode?.({
+          node,
+        });
+
         this.state.visibleNodes = [
           ...this.state.visibleNodes,
           {
-            type: VISIBLE_NODE_TYPES.HTML_TAG,
+            type: "html_tag",
             node,
             parentNode: parentNode || this.state.elements.wrapper,
           },
@@ -1076,16 +1154,12 @@ class Typewriter {
         const lastVisibleNode = this.state.visibleNodes.pop();
 
         if (lastVisibleNode) {
-          const {
-            type,
-            node,
-            character,
-            characterIndex,
-            currentString,
-            stringIndex,
-          } = lastVisibleNode;
+          const { type, node } = lastVisibleNode;
 
-          this.options.onRemoveNode?.({
+          const character =
+            "character" in lastVisibleNode ? lastVisibleNode.character : "";
+
+          this.options.onWillRemoveNode?.({
             node,
             character,
           });
@@ -1095,7 +1169,7 @@ class Typewriter {
           }
 
           // Remove extra node as current deleted one is just an empty wrapper node
-          if (type === VISIBLE_NODE_TYPES.HTML_TAG && removingCharacterNode) {
+          if (type === "html_tag" && removingCharacterNode) {
             eventQueue.unshift({
               eventName: "remove_last_visible_node",
               // @todo check if this should set removingCharacterNode to false
@@ -1105,10 +1179,19 @@ class Typewriter {
 
           this.options.onDelete?.({
             typewriter: this,
-            character: character ?? "",
-            characterIndex: characterIndex ?? -1,
-            currentString: currentString ?? "",
-            stringIndex: stringIndex ?? -1,
+            character,
+            characterIndex:
+              "characterIndex" in lastVisibleNode
+                ? lastVisibleNode.characterIndex
+                : undefined,
+            currentString:
+              "currentString" in lastVisibleNode
+                ? lastVisibleNode.currentString
+                : undefined,
+            stringIndex:
+              "stringIndex" in lastVisibleNode
+                ? lastVisibleNode.stringIndex
+                : undefined,
           });
         }
         break;
@@ -1157,7 +1240,6 @@ class Typewriter {
    * Log a message in development mode
    *
    * @param {Mixed} message Message or item to console.log
-   * @author Tameem Safi <tamem@safi.me.uk>
    */
   logInDevMode(message: any) {
     if (this.options.devMode) {
@@ -1165,11 +1247,16 @@ class Typewriter {
     }
   }
 
+  /**
+   * Update the current options of the typewriter instance
+   *
+   * @param options Typewriter options
+   */
   update(options: Partial<TypewriterOptions>) {
     this.options = {
       ...this.options,
       ...options,
-    };
+    } as TypewriterOptions;
   }
 }
 
@@ -1203,4 +1290,3 @@ const resetStylesAdded = () => {
 
 export default Typewriter;
 export { resetStylesAdded };
-export type { TypewriterOptions, EventQueueItem };
