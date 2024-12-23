@@ -10,8 +10,7 @@ const raf = jest.fn((fn) => {
   return 1;
 });
 const cancelRaf = jest.fn();
-const mockAppendChild = (jest.mocked<typeof document.head.appendChild> =
-  jest.fn());
+const mockAppendChild = jest.fn();
 
 describe("Typewriter", () => {
   let wrapperElement: HTMLElement;
